@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>综合金融计算器</title>
+    <style>
+        /* 全局样式 - 简洁现代风格 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* 左侧导航 - 玻璃拟态效果 */
+        .sidebar {
+            width: 250px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            border-right: 1px solid rgba(255,255,255,0.5);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1a6dff;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .nav-section {
+            margin-bottom: 20px;
+        }
+
+        .nav-title {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 10px 15px;
+            color: #444;
+            text-decoration: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 5px;
+            background: rgba(255,255,255,0.5);
+        }
+
+        .nav-item:hover {
+            background: rgba(26, 109, 255, 0.1);
+            color: #1a6dff;
+        }
+
+        .nav-item.active {
+            background: rgba(26, 109, 255, 0.15);
+            color: #1a6dff;
+            font-weight: 500;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .module-content {
+            display: none;
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        .module-content.active {
+            display: block;
+        }
+
+        .module-header {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #1a6dff;
+        }
+
+        .module-desc {
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        /* 表单样式 */
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #444;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255,255,255,0.7);
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #1a6dff;
+            box-shadow: 0 0 0 3px rgba(26, 109, 255, 0.1);
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        /* 按钮样式 */
+        .btn-calculate {
+            background: linear-gradient(135deg, #1a6dff, #0d5bd9);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 20px 0;
+            box-shadow: 0 4px 10px rgba(26, 109, 255, 0.3);
+        }
+
+        .btn-calculate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(26, 109, 255, 0.4);
+        }
+
+        /* 结果展示 */
+        .results-section {
+            margin-top: 30px;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(5px);
+            border-radius: 12px;
+            display: none;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        .results-section.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .result-item {
+            padding: 15px;
+            margin-bottom: 15px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .result-label {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .result-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1a6dff;
+            margin-top: 5px;
+        }
+
+        .result-formula {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(26, 109, 255, 0.05);
+            border-radius: 5px;
+            font-size: 14px;
+            color: #555;
+            font-family: 'Courier New', monospace;
+            border-left: 3px solid #1a6dff;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                padding: 15px;
+            }
+
+            .sidebar.hidden {
+                display: none;
+            }
+
+            .main-content {
+                padding: 15px;
+            }
+
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 1000;
+                background: rgba(26, 109, 255, 0.9);
+                color: white;
+                border: none;
+                padding: 10px;
+                border-radius: 8px;
+                cursor: pointer;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-menu-toggle {
+                display: none;
+            }
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 历史记录 */
+        .history-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .history-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .history-date {
+            color: #1a6dff;
+            font-size: 12px;
+        }
+
+        /* 导出按钮 */
+        .export-buttons {
+            margin-top: 20px;
+        }
+
+        .btn-export {
+            background: linear-gradient(135deg, #00c853, #009624);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0,200,83,0.2);
+        }
+
+        .btn-export:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,200,83,0.3);
+        }
+
+        /* 提示信息 */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 5px;
+            cursor: help;
+            color: #1a6dff;
+            font-weight: bold;
+        }
+
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 12px;
+            background: rgba(26, 109, 255, 0.9);
+            color: white;
+            border-radius: 5px;
+            white-space: nowrap;
+            font-size: 12px;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">☰ 菜单</button>
+    
+    <div class="container">
+        <!-- 左侧导航 -->
+        <div class="sidebar" id="sidebar">
+            <div class="logo">金融专用计算器</div>
+            
+            <div class="nav-section">
+                <div class="nav-title">基础计算</div>
+                <a href="#" class="nav-item active" onclick="showModule('compound')">复利计算</a>
+                <a href="#" class="nav-item" onclick="showModule('loan')">贷款计算</a>
+                <a href="#" class="nav-item" onclick="showModule('bond')">债券定价</a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-title">投资分析</div>
+                <a href="#" class="nav-item" onclick="showModule('portfolio')">投资组合</a>
+                <a href="#" class="nav-item" onclick="showModule('capm')">CAPM模型</a>
+                <a href="#" class="nav-item" onclick="showModule('ddm')">股票DDM</a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-title">时间价值</div>
+                <a href="#" class="nav-item" onclick="showModule('npv')">NPV/IRR</a>
+                <a href="#" class="nav-item" onclick="showModule('annuity')">年金计算</a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-title">风险管理</div>
+                <a href="#" class="nav-item" onclick="showModule('volatility')">波动率</a>
+                <a href="#" class="nav-item" onclick="showModule('option')">期权希腊字母</a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-title">历史记录</div>
+                <div id="historyList"></div>
+            </div>
+        </div>
+        
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <!-- 复利计算模块 -->
+            <div class="module-content active" id="compound">
+                <h2 class="module-header">复利计算</h2>
+                <p class="module-desc">计算复利终值、现值，支持定期定投</p>
+                
+                <div class="input-group">
+                    <label>现值 (PV) <span class="tooltip" data-tooltip="初始投资金额">?</span></label>
+                    <input type="number" id="compoundPV" value="10000" step="0.01">
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>年利率 (%) <span class="tooltip" data-tooltip="年化收益率">?</span></label>
+                        <input type="number" id="compoundRate" value="5" step="0.01">
+                    </div>
+                    <div class="input-group">
+                        <label>期限 (年) <span class="tooltip" data-tooltip="投资年限">?</span></label>
+                        <input type="number" id="compoundYears" value="10" step="0.1">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>定期投入 (PMT) <span class="tooltip" data-tooltip="每期追加投资，0表示一次性投入">?</span></label>
+                    <input type="number" id="compoundPMT" value="0" step="0.01">
+                </div>
+                
+                <div class="input-group">
+                    <label>投入频率</label>
+                    <select id="compoundFreq">
+                        <option value="12">每月</option>
+                        <option value="4">每季</option>
+                        <option value="1">每年</option>
+                    </select>
+                </div>
+                
+                <button class="btn-calculate" onclick="calculateCompound()">计算复利</button>
+                
+                <div class="results-section" id="compoundResults"></div>
+            </div>
+            
+            <!-- 贷款计算模块 -->
+            <div class="module-content" id="loan">
+                <h2 class="module-header">贷款计算器</h2>
+                <p class="module-desc">支持等额本息和等额本金两种还款方式</p>
+                
+                <div class="input-group">
+                    <label>贷款总额 (元)</label>
+                    <input type="number" id="loanAmount" value="1000000" step="0.01">
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>年利率 (%)</label>
+                        <input type="number" id="loanRate" value="4.9" step="0.01">
+                    </div>
+                    <div class="input-group">
+                        <label>贷款期限 (年)</label>
+                        <input type="number" id="loanYears" value="30" step="1">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>还款方式</label>
+                    <select id="loanType">
+                        <option value="equal-payment">等额本息</option>
+                        <option value="equal-principal">等额本金</option>
+                    </select>
+                </div>
+                
+                <button class="btn-calculate" onclick="calculateLoan()">计算还款计划</button>
+                
+                <div class="results-section" id="loanResults"></div>
+            </div>
+            
+            <!-- 债券定价模块 -->
+            <div class="module-content" id="bond">
+                <h2 class="module-header">债券定价与收益率</h2>
+                <p class="module-desc">计算债券价格和到期收益率(YTM)</p>
+                
+                <div class="input-group">
+                    <label>面值 (元) <span class="tooltip" data-tooltip="债券到期偿还的本金">?</span></label>
+                    <input type="number" id="bondFaceValue" value="1000" step="0.01">
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>票面利率 (%)</label>
+                        <input type="number" id="bondCouponRate" value="5" step="0.01">
+                    </div>
+                    <div class="input-group">
+                        <label>剩余期限 (年)</label>
+                        <input type="number" id="bondYears" value="5" step="0.1">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>市场收益率 (%) <span class="tooltip" data-tooltip="用于定价的折现率">?</span></label>
+                    <input type="number" id="bondYield" value="6" step="0.01">
+                </div>
+                
+                <button class="btn-calculate" onclick="calculateBond()">计算债券价格</button>
+                
+                <div class="results-section" id="bondResults"></div>
+            </div>
+            
+            <!-- 投资组合模块 -->
+            <div class="module-content" id="portfolio">
+                <h2 class="module-header">投资组合分析</h2>
+                <p class="module-desc">计算组合预期收益和风险（标准差）</p>
+                
+                <div class="input-group">
+                    <label>资产1权重 (%) <span class="tooltip" data-tooltip="输入权重百分比">?</span></label>
+                    <input type="number" id="weight1" value="50" step="0.1">
+                </div>
+                <div class="input-group">
+                    <label>资产1预期收益 (%) <span class="tooltip" data-tooltip="年化预期收益率">?</span></label>
+                    <input type="number" id="return1" value="8" step="0.01">
+                </div>
+                
+                <div class="input-group">
+                    <label>资产2权重 (%) <span class="tooltip" data-tooltip="自动计算剩余权重">?</span></label>
+                    <input type="number" id="weight2" value="50" step="0.1">
+                </div>
+                <div class="input-group">
+                    <label>资产2预期收益 (%) <span class="tooltip" data-tooltip="年化预期收益率">?</span></label>
+                    <input type="number" id="return2" value="12" step="0.01">
+                </div>
+                
+                <div class="input-group">
+                    <label>相关系数 <span class="tooltip" data-tooltip="-1到1之间，0表示不相关">?</span></label>
+                    <input type="number" id="correlation" value="0.3" step="0.01" min="-1" max="1">
+                </div>
+                
+                <button class="btn-calculate" onclick="calculatePortfolio()">计算组合指标</button>
+                
+                <div class="results-section" id="portfolioResults"></div>
+            </div>
+            
+            <!-- CAPM模块 -->
+            <div class="module-content" id="capm">
+                <h2 class="module-header">CAPM模型</h2>
+                <p class="module-desc">资本资产定价模型计算预期收益率</p>
+                
+                <div class="input-group">
+                    <label>无风险利率 (%) <span class="tooltip" data-tooltip="通常取国债收益率">?</span></label>
+                    <input type="number" id="riskFreeRate" value="3" step="0.01">
+                </div>
+                
+                <div class="input-group">
+                    <label>市场风险溢价 (%) <span class="tooltip" data-tooltip="市场预期收益-无风险利率">?</span></label>
+                    <input type="number" id="marketRiskPremium" value="5" step="0.01">
+                </div>
+                
+                <div class="input-group">
+                    <label>Beta系数 <span class="tooltip" data-tooltip="系统风险系数，>1风险高于市场">?</span></label>
+                    <input type="number" id="beta" value="1.2" step="0.01">
+                </div>
+                
+                <button class="btn-calculate" onclick="calculateCapm()">计算预期收益</button>
+                
+                <div class="results-section" id="capmResults"></div>
+            </div>
+            
+            <!-- DDM模块 -->
+            <div class="module-content" id="ddm">
+                <h2 class="module-header">股票DDM估值</h2>
+                <p class="module-desc">股利贴现模型计算股票内在价值</p>
+                
+                <div class="input-group">
+                    <label>最近股利 (元) <span class="tooltip" data-tooltip="最近一期支付的股利">?</span></label>
+                    <input type="number" id="recentDividend" value="2" step="0.01">
+                </div>
+                
+                <div class="input-group">
+                    <label>股利增长率 (%) <span class="tooltip" data-tooltip="永续增长率g，应小于折现率">?</span></label>
+                    <input type="number" id="growthRate" value="3" step="0.01">
+                </div>
+                
+                <div class="input-group">
+                    <label>要求回报率 (%) <span class="tooltip" data-tooltip="投资者的预期回报率">?</span></label>
+                    <input type="number" id="requiredReturn" value="10" step="0.01">
+                </div>
+                
+                <button class="btn-calculate" onclick="calculateDDM()">计算股票价值</button>
+                
+                <div class="results-section" id="ddmResults"></div>
+            </div>
+            
+            <!-- NPV/IRR模块 -->
+            <div class="module-content" id="npv">
+                <h2 class="module-header">NPV与IRR计算</h2>
+                <p class="module-desc">净现值和内部收益率分析</p>
+                
+                <div class="input-group">
+                    <label>初始投资 (元) <span class="tooltip" data-tooltip="期初现金流（负值）">?</span></label>
+                    <input type="number" id="initialInvestment" value="-100000" step="0.01">
+                </div>
+                
+                <div class="input-group">
+                    <label>现金流序列 (元，逗号分隔) <span class="tooltip" data-tooltip="例如: 20000,25000,30000">?</span></label>
+                    <input type="text" id="cashFlows" value="20000,25000,30000,28000,26000">
+                </div>
+                
+                <div class="input-group">
+                    <label>折现率 (%) <span class="tooltip" data-tooltip="资本成本或要求回报率">?</span></label>
+                    <input type="number" id="discountRate" value="8" step="0.01">
+                </div>
+                
+                <button class="btn-calculate" onclick="calculateNPV()">计算NPV/IRR</button>
+                
+                <div class="results-section" id="npvResults"></div>
+            </div>
+            
+            <!-- 年金模块 -->
+            <div class="module-content" id="annuity">
+                <h2 class="module-header">年金计算</h2>
+                <p class="module-desc">普通年金、预付年金和永续年金</p>
+                
+                <div class="input-group">
+                    <label>每期支付 (元) <span class="tooltip" data-tooltip="每期固定支付金额">?</span></label>
+                    <input type="number" id="annuityPayment" value="1000" step="0.01">
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>利率 (%)</label>
+                        <input type="number" id="annuityRate" value="5" step="0.01">
+                    </div>
+                    <div class="input-group">
+                        <label>期数</label>
+                        <input type="number" id="annuityPeriods" value="10" step="1">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>年金类型</label>
+                    <select id="annuityType">
+                        <option value="ordinary">普通年金（期末支付）</option>
+                        <option value="due">预付年金（期初支付）</option>
+                        <option value="perpetuity">永续年金</option>
+                    </select>
+                </div>
+                
+                <button class="btn-calculate" onclick="calculateAnnuity()">计算年金价值</button>
+                
+                <div class="results-section" id="annuityResults"></div>
+            </div>
+            
+            <!-- 波动率模块 -->
+            <div class="module-content" id="volatility">
+                <h2 class="module-header">波动率与最大回撤</h2>
+                <p class="module-desc">计算收益序列的波动率和最大回撤</p>
+                
+                <div class="input-group">
+                    <label>收益率序列 (%，逗号分隔) <span class="tooltip" data-tooltip="例如: 5,8,-3,12,6">?</span></label>
+                    <input type="text" id="returnSeries" value="5,8,-3,12,6,4,-1,9,7,3">
+                </div>
+                
+                <button class="btn-calculate" onclick="calculateVolatility()">计算风险指标</button>
+                
+                <div class="results-section" id="volatilityResults"></div>
+            </div>
+            
+            <!-- 期权希腊字母模块 -->
+            <div class="module-content" id="option">
+                <h2 class="module-header">期权希腊字母</h2>
+                <p class="module-desc">期权Delta和Gamma近似计算</p>
+                
+                <div class="input-group">
+                    <label>标的资产价格</label>
+                    <input type="number" id="underlyingPrice" value="100" step="0.01">
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>行权价</label>
+                        <input type="number" id="strikePrice" value="100" step="0.01">
+                    </div>
+                    <div class="input-group">
+                        <label>到期时间 (年)</label>
+                        <input type="number" id="timeToExpiry" value="1" step="0.01">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>无风险利率 (%)</label>
+                    <input type="number" id="optionRiskFree" value="3" step="0.01">
+                </div>
+                
+                <div class="input-group">
+                    <label>波动率 (%)</label>
+                    <input type="number" id="optionVolatility" value="20" step="0.01">
+                </div>
+                
+                <button class="btn-calculate" onclick="calculateOptionGreeks()">计算希腊字母</button>
+                
+                <div class="results-section" id="optionResults"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let calculationHistory = JSON.parse(localStorage.getItem('financeCalculatorHistory')) || [];
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadHistory();
+        });
+
+        // 侧边栏切换（移动端）
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('hidden');
+        }
+
+        // 切换模块
+        function showModule(moduleId) {
+            // 隐藏所有模块
+            document.querySelectorAll('.module-content').forEach(module => {
+                module.classList.remove('active');
+            });
+            
+            // 显示选中模块
+            document.getElementById(moduleId).classList.add('active');
+            
+            // 更新导航状态
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // 移动端关闭侧边栏
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.add('hidden');
+            }
+        }
+
+        // 工具函数：格式化数字
+        function formatNumber(num, decimals = 2) {
+            return parseFloat(num).toFixed(decimals);
+        }
+
+        // 工具函数：添加到历史记录
+        function addToHistory(module, result) {
+            const history = {
+                module: module,
+                result: result,
+                date: new Date().toLocaleString('zh-CN')
+            };
+            
+            calculationHistory.unshift(history);
+            if (calculationHistory.length > 20) {
+                calculationHistory = calculationHistory.slice(0, 20);
+            }
+            
+            localStorage.setItem('financeCalculatorHistory', JSON.stringify(calculationHistory));
+            loadHistory();
+        }
+
+        // 加载历史记录
+        function loadHistory() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            
+            if (calculationHistory.length === 0) {
+                historyList.innerHTML = '<div style="color:#999;font-size:12px;">暂无计算历史</div>';
+                return;
+            }
+            
+            calculationHistory.slice(0, 5).forEach((item, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
+                    <div style="font-weight:500">${item.module}</div>
+                    <div style="font-size:12px;color:#666">${item.result}</div>
+                    <div class="history-date">${item.date}</div>
+                `;
+                historyList.appendChild(historyItem);
+            });
+        }
+
+        // 复利计算
+        function calculateCompound() {
+            const pv = parseFloat(document.getElementById('compoundPV').value);
+            const rate = parseFloat(document.getElementById('compoundRate').value) / 100;
+            const years = parseFloat(document.getElementById('compoundYears').value);
+            const pmt = parseFloat(document.getElementById('compoundPMT').value);
+            const freq = parseInt(document.getElementById('compoundFreq').value);
+            
+            // 计算复利终值
+            const periodicRate = rate / freq;
+            const totalPeriods = years * freq;
+            
+            // FV = PV*(1+r)^n + PMT*[((1+r)^n -1)/r]
+            let fv = pv * Math.pow(1 + periodicRate, totalPeriods);
+            if (pmt !== 0) {
+                fv += pmt * (Math.pow(1 + periodicRate, totalPeriods) - 1) / periodicRate;
+            }
+            
+            const totalPayment = pv + pmt * totalPeriods;
+            const totalInterest = fv - totalPayment;
+            
+            // 展示结果
+            const results = `
+                <div class="results-section show" id="compoundResults">
+                    <div class="result-item">
+                        <div class="result-label">终值 (Future Value)</div>
+                        <div class="result-value">¥${formatNumber(fv)}</div>
+                        <div class="result-formula">FV = PV×(1+r)^n + PMT×[((1+r)^n-1)/r]</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">总投入</div>
+                        <div class="result-value">¥${formatNumber(totalPayment)}</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">总利息</div>
+                        <div class="result-value">¥${formatNumber(totalInterest)}</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">年均收益率</div>
+                        <div class="result-value">${formatNumber(Math.pow(fv / pv, 1 / years) * 100 - 100, 4)}%</div>
+                    </div>
+                    
+                    <div class="export-buttons">
+                        <button class="btn-export" onclick="exportToPNG()">导出PNG</button>
+                        <button class="btn-export" onclick="exportToPDF()">导出PDF</button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('compoundResults').outerHTML = results;
+            addToHistory('复利计算', `终值 ¥${formatNumber(fv)}`);
+        }
+
+        // 贷款计算
+        function calculateLoan() {
+            const amount = parseFloat(document.getElementById('loanAmount').value);
+            const annualRate = parseFloat(document.getElementById('loanRate').value) / 100;
+            const years = parseInt(document.getElementById('loanYears').value);
+            const type = document.getElementById('loanType').value;
+            
+            const monthlyRate = annualRate / 12;
+            const months = years * 12;
+            
+            let results = '';
+            
+            if (type === 'equal-payment') {
+                // 等额本息：每月还款额 = [本金×月利率×(1+月利率)^还款月数]÷[(1+月利率)^还款月数-1]
+                const monthlyPayment = amount * monthlyRate * Math.pow(1 + monthlyRate, months) / 
+                                     (Math.pow(1 + monthlyRate, months) - 1);
+                const totalPayment = monthlyPayment * months;
+                const totalInterest = totalPayment - amount;
+                
+                results = `
+                    <div class="result-item">
+                        <div class="result-label">月供金额</div>
+                        <div class="result-value">¥${formatNumber(monthlyPayment)}</div>
+                        <div class="result-formula">等额本息：每月固定还款</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">总还款额</div>
+                        <div class="result-value">¥${formatNumber(totalPayment)}</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">总利息</div>
+                        <div class="result-value">¥${formatNumber(totalInterest)}</div>
+                    </div>
+                `;
+            } else if (type === 'equal-principal') {
+                // 等额本金：每月还款额 = (本金/还款月数) + (本金-已还本金累计)×月利率
+                const principalPayment = amount / months;
+                let totalInterest = 0;
+                
+                // 计算总利息
+                for (let i = 0; i < months; i++) {
+                    const interestPayment = (amount - principalPayment * i) * monthlyRate;
+                    totalInterest += interestPayment;
+                }
+                
+                const totalPayment = amount + totalInterest;
+                const firstPayment = principalPayment + amount * monthlyRate;
+                const lastPayment = principalPayment + principalPayment * monthlyRate;
+                
+                results = `
+                    <div class="result-item">
+                        <div class="result-label">首期还款</div>
+                        <div class="result-value">¥${formatNumber(firstPayment)}</div>
+                        <div class="result-formula">等额本金：月供递减</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">末期还款</div>
+                        <div class="result-value">¥${formatNumber(lastPayment)}</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">总利息</div>
+                        <div class="result-value">¥${formatNumber(totalInterest)}</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">总还款额</div>
+                        <div class="result-value">¥${formatNumber(totalPayment)}</div>
+                    </div>
+                `;
+            }
+            
+            const resultsHTML = `
+                <div class="results-section show" id="loanResults">
+                    ${results}
+                    <div class="export-buttons">
+                        <button class="btn-export" onclick="exportToPNG()">导出PNG</button>
+                        <button class="btn-export" onclick="exportToPDF()">导出PDF</button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('loanResults').outerHTML = resultsHTML;
+            addToHistory('贷款计算', `${type === 'equal-payment' ? '等额本息' : '等额本金'} 月供 ¥${formatNumber(monthlyPayment || 0)}`);
+        }
+
+        // 债券定价计算
+        function calculateBond() {
+            const faceValue = parseFloat(document.getElementById('bondFaceValue').value);
+            const couponRate = parseFloat(document.getElementById('bondCouponRate').value) / 100;
+            const years = parseFloat(document.getElementById('bondYears').value);
+            const yieldRate = parseFloat(document.getElementById('bondYield').value) / 100;
+            
+            // 每年利息
+            const annualCoupon = faceValue * couponRate;
+            
+            // 债券价格 = ∑(利息/(1+收益率)^i) + 面值/(1+收益率)^n
+            let price = 0;
+            for (let i = 1; i <= years; i++) {
+                price += annualCoupon / Math.pow(1 + yieldRate, i);
+            }
+            price += faceValue / Math.pow(1 + yieldRate, years);
+            
+            const currentYield = annualCoupon / price;
+            const duration = calculateDuration(price, annualCoupon, yieldRate, years, faceValue);
+            
+            const resultsHTML = `
+                <div class="results-section show" id="bondResults">
+                    <div class="result-item">
+                        <div class="result-label">债券价格</div>
+                        <div class="result-value">¥${formatNumber(price)}</div>
+                        <div class="result-formula">价格 = ∑(C/(1+y)^t) + F/(1+y)^n</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">当前收益率</div>
+                        <div class="result-value">${formatNumber(currentYield * 100, 4)}%</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">久期 (Duration)</div>
+                        <div class="result-value">${formatNumber(duration, 2)}</div>
+                    </div>
+                    
+                    <div class="export-buttons">
+                        <button class="btn-export" onclick="exportToPNG()">导出PNG</button>
+                        <button class="btn-export" onclick="exportToPDF()">导出PDF</button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('bondResults').outerHTML = resultsHTML;
+            addToHistory('债券定价', `价格 ¥${formatNumber(price)}`);
+        }
+
+        // 计算久期
+        function calculateDuration(price, coupon, yieldRate, years, faceValue) {
+            let duration = 0;
+            for (let i = 1; i <= years; i++) {
+                const cashFlow = i === years ? coupon + faceValue : coupon;
+                duration += i * cashFlow / Math.pow(1 + yieldRate, i);
+            }
+            return duration / price;
+        }
+
+        // 投资组合计算
+        function calculatePortfolio() {
+            const w1 = parseFloat(document.getElementById('weight1').value) / 100;
+            const r1 = parseFloat(document.getElementById('return1').value) / 100;
+            const w2 = parseFloat(document.getElementById('weight2').value) / 100;
+            const r2 = parseFloat(document.getElementById('return2').value) / 100;
+            const corr = parseFloat(document.getElementById('correlation').value);
+            
+            // 组合收益
+            const portfolioReturn = w1 * r1 + w2 * r2;
+            
+            // 组合风险（简化计算，假设标准差均为15%）
+            const sigma1 = 0.15;
+            const sigma2 = 0.15;
+            const portfolioVariance = w1 * w1 * sigma1 * sigma1 + w2 * w2 * sigma2 * sigma2 + 
+                                     2 * w1 * w2 * corr * sigma1 * sigma2;
+            const portfolioRisk = Math.sqrt(portfolioVariance);
+            
+            const resultsHTML = `
+                <div class="results-section show" id="portfolioResults">
+                    <div class="result-item">
+                        <div class="result-label">组合预期收益</div>
+                        <div class="result-value">${formatNumber(portfolioReturn * 100, 4)}%</div>
+                        <div class="result-formula">E(Rp) = w1×R1 + w2×R2</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">组合风险（标准差）</div>
+                        <div class="result-value">${formatNumber(portfolioRisk * 100, 4)}%</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">夏普比率（假设无风险利率3%）</div>
+                        <div class="result-value">${formatNumber((portfolioReturn - 0.03) / portfolioRisk, 4)}</div>
+                    </div>
+                    
+                    <div class="export-buttons">
+                        <button class="btn-export" onclick="exportToPNG()">导出PNG</button>
+                        <button class="btn-export" onclick="exportToPDF()">导出PDF</button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('portfolioResults').outerHTML = resultsHTML;
+            addToHistory('投资组合', `收益 ${formatNumber(portfolioReturn * 100, 2)}%`);
+        }
+
+        // CAPM计算
+        function calculateCapm() {
+            const rf = parseFloat(document.getElementById('riskFreeRate').value) / 100;
+            const marketPremium = parseFloat(document.getElementById('marketRiskPremium').value) / 100;
+            const beta = parseFloat(document.getElementById('beta').value);
+            
+            // E(Ri) = Rf + βi(E(Rm) - Rf)
+            const expectedReturn = rf + beta * marketPremium;
+            
+            // 计算风险贡献
+            const systematicRisk = beta * marketPremium;
+            
+            const resultsHTML = `
+                <div class="results-section show" id="capmResults">
+                    <div class="result-item">
+                        <div class="result-label">预期收益率</div>
+                        <div class="result-value">${formatNumber(expectedReturn * 100, 4)}%</div>
+                        <div class="result-formula">E(Ri) = Rf + β×(Rm - Rf)</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">无风险利率贡献</div>
+                        <div class="result-value">${formatNumber(rf * 100, 4)}%</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">风险溢价贡献</div>
+                        <div class="result-value">${formatNumber(systematicRisk * 100, 4)}%</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">风险调整后收益</div>
+                        <div class="result-value">${beta > 1 ? '高风险' : beta < 1 ? '低风险' : '等于市场风险'}</div>
+                    </div>
+                    
+                    <div class="export-buttons">
+                        <button class="btn-export" onclick="exportToPNG()">导出PNG</button>
+                        <button class="btn-export" onclick="exportToPDF()">导出PDF</button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('capmResults').outerHTML = resultsHTML;
+            addToHistory('CAPM模型', `预期收益 ${formatNumber(expectedReturn * 100, 2)}%`);
+        }
+
+        // DDM计算
+        function calculateDDM() {
+            const d0 = parseFloat(document.getElementById('recentDividend').value);
+            const g = parseFloat(document.getElementById('growthRate').value) / 100;
+            const r = parseFloat(document.getElementById('requiredReturn').value) / 100;
+            
+            if (g >= r) {
+                alert('错误：增长率必须小于要求回报率');
+                return;
+            }
+            
+            // P0 = D1 / (r - g) = D0(1+g) / (r - g)
+            const stockValue = d0 * (1 + g) / (r - g);
+            const d1 = d0 * (1 + g);
+            
+            const resultsHTML = `
+                <div class="results-section show" id="ddmResults">
+                    <div class="result-item">
+                        <div class="result-label">股票内在价值</div>
+                        <div class="result-value">¥${formatNumber(stockValue)}</div>
+                        <div class="result-formula">P0 = D1 / (r - g)</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">预期下期股利</div>
+                        <div class="result-value">¥${formatNumber(d1)}</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">要求回报率构成</div>
+                        <div class="result-value">股利收益率 ${formatNumber((d1 / stockValue) * 100, 4)}% + 增长率 ${formatNumber(g * 100, 4)}%</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">合理市盈率</div>
+                        <div class="result-value">${formatNumber(stockValue / d0, 2)} 倍</div>
+                    </div>
+                    
+                    <div class="export-buttons">
+                        <button class="btn-export" onclick="exportToPNG()">导出PNG</button>
+                        <button class="btn-export" onclick="exportToPDF()">导出PDF</button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('ddmResults').outerHTML = resultsHTML;
+            addToHistory('DDM估值', `股票价值 ¥${formatNumber(stockValue)}`);
+        }
+
+        // NPV/IRR计算
+        function calculateNPV() {
+            const initial = parseFloat(document.getElementById('initialInvestment').value);
+            const cashFlowsText = document.getElementById('cashFlows').value;
+            const discountRate = parseFloat(document.getElementById('discountRate').value) / 100;
+            
+            // 解析现金流
+            const cashFlows = cashFlowsText.split(',').map(x => parseFloat(x.trim()));
+            const allCashFlows = [initial, ...cashFlows];
+            
+            // 计算NPV
+            let npv = initial;
+            for (let i = 0; i < cashFlows.length; i++) {
+                npv += cashFlows[i] / Math.pow(1 + discountRate, i + 1);
+            }
+            
+            // 使用简化方法估算IRR
+            const irr = calculateIRR(allCashFlows);
+            const paybackPeriod = calculatePaybackPeriod(allCashFlows);
+            
+            // 计算盈利指数
+            const pi = (npv - initial) / (-initial) + 1;
+            
+            const resultsHTML = `
+                <div class="results-section show" id="npvResults">
+                    <div class="result-item">
+                        <div class="result-label">净现值 (NPV)</div>
+                        <div class="result-value">¥${formatNumber(npv)}</div>
+                        <div class="result-formula">NPV = ∑CFt/(1+r)^t</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">内部收益率 (IRR)</div>
+                        <div class="result-value">${formatNumber(irr * 100, 4)}%</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">投资回收期</div>
+                        <div class="result-value">${paybackPeriod} 年</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">盈利指数 (PI)</div>
+                        <div class="result-value">${formatNumber(pi, 4)}</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">投资建议</div>
+                        <div class="result-value" style="color: ${npv > 0 ? '#27ae60' : '#e74c3c'}">${npv > 0 ? '接受项目' : '拒绝项目'}</div>
+                    </div>
+                    
+                    <div class="export-buttons">
+                        <button class="btn-export" onclick="exportToPNG()">导出PNG</button>
+                        <button class="btn-export" onclick="exportToPDF()">导出PDF</button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('npvResults').outerHTML = resultsHTML;
+            addToHistory('NPV/IRR', `NPV ¥${formatNumber(npv)}`);
+        }
+
+        // 简化IRR计算
+        function calculateIRR(cashFlows, maxIterations = 100) {
+            const guess = 0.1;
+            const tolerance = 0.00001;
+            
+            let rate = guess;
+            
+            for (let i = 0; i < maxIterations; i++) {
+                let npv = 0;
+                let npvDerivative = 0;
+                
+                for (let t = 0; t < cashFlows.length; t++) {
+                    const discountFactor = Math.pow(1 + rate, t);
+                    npv += cashFlows[t] / discountFactor;
+                    npvDerivative -= t * cashFlows[t] / Math.pow(1 + rate, t + 1);
+                }
+                
+                if (Math.abs(npv) < tolerance) {
+                    return rate;
+                }
+                
+                rate = rate - npv / npvDerivative;
+            }
+            
+            return rate;
+        }
+
+        // 计算投资回收期
+        function calculatePaybackPeriod(cashFlows) {
+            let cumulative = 0;
+            for (let i = 0; i < cashFlows.length; i++) {
+                cumulative += cashFlows[i];
+                if (cumulative >= 0) {
+                    return i + (cumulative - cashFlows[i]) / cashFlows[i];
+                }
+            }
+            return cashFlows.length;
+        }
+
+        // 年金计算
+        function calculateAnnuity() {
+            const pmt = parseFloat(document.getElementById('annuityPayment').value);
+            const rate = parseFloat(document.getElementById('annuityRate').value) / 100;
+            const periods = parseInt(document.getElementById('annuityPeriods').value);
+            const type = document.getElementById('annuityType').value;
+            
+            let pv, fv, formula;
+            
+            if (type === 'perpetuity') {
+                // 永续年金：PV = PMT / r
+                pv = pmt / rate;
+                fv = Infinity;
+                formula = '永续年金：PV = PMT / r';
+            } else if (type === 'due') {
+                // 预付年金
+                pv = pmt * (1 - Math.pow(1 + rate, -periods)) / rate * (1 + rate);
+                fv = pmt * (Math.pow(1 + rate, periods) - 1) / rate * (1 + rate);
+                formula = '预付年金：期初支付';
+            } else {
+                // 普通年金
+                pv = pmt * (1 - Math.pow(1 + rate, -periods)) / rate;
+                fv = pmt * (Math.pow(1 + rate, periods) - 1) / rate;
+                formula = '普通年金：期末支付';
+            }
+            
+            const resultsHTML = `
+                <div class="results-section show" id="annuityResults">
+                    <div class="result-item">
+                        <div class="result-label">现值 (PV)</div>
+                        <div class="result-value">¥${formatNumber(pv)}</div>
+                        <div class="result-formula">${formula}</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">终值 (FV)</div>
+                        <div class="result-value">${type === 'perpetuity' ? '∞' : '¥' + formatNumber(fv)}</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">总支付额</div>
+                        <div class="result-value">¥${formatNumber(pmt * periods)}</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">总利息</div>
+                        <div class="result-value">¥${type === 'perpetuity' ? '∞' : formatNumber(fv - pmt * periods)}</div>
+                    </div>
+                    
+                    <div class="export-buttons">
+                        <button class="btn-export" onclick="exportToPNG()">导出PNG</button>
+                        <button class="btn-export" onclick="exportToPDF()">导出PDF</button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('annuityResults').outerHTML = resultsHTML;
+            addToHistory('年金计算', `现值 ¥${formatNumber(pv)}`);
+        }
+
+        // 波动率计算
+        function calculateVolatility() {
+            const returnsText = document.getElementById('returnSeries').value;
+            const returns = returnsText.split(',').map(x => parseFloat(x.trim()) / 100);
+            
+            // 计算平均收益
+            const meanReturn = returns.reduce((a, b) => a + b, 0) / returns.length;
+            
+            // 计算标准差（波动率）
+            const variance = returns.reduce((sum, ret) => sum + Math.pow(ret - meanReturn, 2), 0) / (returns.length - 1);
+            const volatility = Math.sqrt(variance);
+            
+            // 计算最大回撤
+            let maxDrawdown = 0;
+            let peak = returns[0];
+            
+            for (let i = 1; i < returns.length; i++) {
+                if (returns[i] > peak) {
+                    peak = returns[i];
+                } else {
+                    const drawdown = (peak - returns[i]) / peak;
+                    maxDrawdown = Math.max(maxDrawdown, drawdown);
+                }
+            }
+            
+            // 年化指标（假设月度数据）
+            const annualizedReturn = meanReturn * 12;
+            const annualizedVolatility = volatility * Math.sqrt(12);
+            
+            const resultsHTML = `
+                <div class="results-section show" id="volatilityResults">
+                    <div class="result-item">
+                        <div class="result-label">平均收益率</div>
+                        <div class="result-value">${formatNumber(meanReturn * 100, 4)}%</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">波动率（标准差）</div>
+                        <div class="result-value">${formatNumber(volatility * 100, 4)}%</div>
+                        <div class="result-formula">σ = √(∑(Ri - R̄)²/(n-1))</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">年化波动率</div>
+                        <div class="result-value">${formatNumber(annualizedVolatility * 100, 4)}%</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">最大回撤</div>
+                        <div class="result-value">${formatNumber(maxDrawdown * 100, 4)}%</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">收益波动比</div>
+                        <div class="result-value">${formatNumber(meanReturn / volatility, 4)}</div>
+                    </div>
+                    
+                    <div class="export-buttons">
+                        <button class="btn-export" onclick="exportToPNG()">导出PNG</button>
+                        <button class="btn-export" onclick="exportToPDF()">导出PDF</button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('volatilityResults').outerHTML = resultsHTML;
+            addToHistory('波动率', `年化波动率 ${formatNumber(annualizedVolatility * 100, 2)}%`);
+        }
+
+        // 期权希腊字母计算
+        function calculateOptionGreeks() {
+            const S = parseFloat(document.getElementById('underlyingPrice').value);
+            const K = parseFloat(document.getElementById('strikePrice').value);
+            const T = parseFloat(document.getElementById('timeToExpiry').value);
+            const r = parseFloat(document.getElementById('optionRiskFree').value) / 100;
+            const sigma = parseFloat(document.getElementById('optionVolatility').value) / 100;
+            
+            // 简化的Black-Scholes计算
+            const d1 = (Math.log(S / K) + (r + sigma * sigma / 2) * T) / (sigma * Math.sqrt(T));
+            const d2 = d1 - sigma * Math.sqrt(T);
+            
+            // 标准正态分布函数近似
+            function N(x) {
+                // 使用近似公式
+                const a1 = 0.254829592;
+                const a2 = -0.284496736;
+                const a3 = 1.421413741;
+                const a4 = -1.453152027;
+                const a5 = 1.061405429;
+                const p = 0.3275911;
+                
+                const sign = x >= 0 ? 1 : -1;
+                x = Math.abs(x) / Math.sqrt(2);
+                
+                const t = 1 / (1 + p * x);
+                const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+                
+                return 0.5 * (1 + sign * y);
+            }
+            
+            // 看涨期权价格和希腊字母
+            const callPrice = S * N(d1) - K * Math.exp(-r * T) * N(d2);
+            const delta = N(d1);
+            const gamma = Math.exp(-d1 * d1 / 2) / (S * sigma * Math.sqrt(2 * Math.PI * T));
+            
+            // 看跌期权价格（看跌-看涨平价）
+            const putPrice = callPrice - S + K * Math.exp(-r * T);
+            const putDelta = delta - 1;
+            
+            const resultsHTML = `
+                <div class="results-section show" id="optionResults">
+                    <div class="result-item">
+                        <div class="result-label">看涨期权价格</div>
+                        <div class="result-value">¥${formatNumber(callPrice)}</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">看跌期权价格</div>
+                        <div class="result-value">¥${formatNumber(putPrice)}</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">Delta (看涨)</div>
+                        <div class="result-value">${formatNumber(delta, 4)}</div>
+                        <div class="result-formula">Δ = ∂C/∂S</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">Gamma</div>
+                        <div class="result-value">${formatNumber(gamma, 4)}</div>
+                        <div class="result-formula">Γ = ∂²C/∂S²</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">看跌期权Delta</div>
+                        <div class="result-value">${formatNumber(putDelta, 4)}</div>
+                    </div>
+                    
+                    <div class="guide">
+                        <h4>希腊字母解读：</h4>
+                        <ul style="color:#666; font-size:14px; margin-top:10px;">
+                            <li>Delta：标的资产价格变动1单位，期权价格变动Delta单位</li>
+                            <li>Gamma：Delta对标的资产价格变动的敏感度</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="export-buttons">
+                        <button class="btn-export" onclick="exportToPNG()">导出PNG</button>
+                        <button class="btn-export" onclick="exportToPDF()">导出PDF</button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('optionResults').outerHTML = resultsHTML;
+            addToHistory('期权希腊字母', `Delta ${formatNumber(delta, 3)}`);
+        }
+
+        // 导出功能
+        function exportToPNG() {
+            alert('此功能暂时未开发\n敬请关注后续更新优化，阿星出品，必属精品\n本计算仅供参考，具体以实际为主');
+        }
+
+        function exportToPDF() {
+            alert('此功能暂时未开发\n敬请关注后续更新优化，阿星出品，必属精品\n本计算仅供参考，具体以实际为主');
+        }
+
+        // Windows Resize 事件处理
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                document.getElementById('sidebar').classList.remove('hidden');
+            }
+        });
+
+        // 键盘快捷键
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+Enter 快速计算
+            if (e.ctrlKey && e.key === 'Enter') {
+                const activeModule = document.querySelector('.module-content.active');
+                const calculateBtn = activeModule.querySelector('.btn-calculate');
+                if (calculateBtn) {
+                    calculateBtn.click();
+                }
+            }
+            
+            // ESC 关闭侧边栏
+            if (e.key === 'Escape' && window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
