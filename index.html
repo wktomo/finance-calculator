@@ -385,23 +385,23 @@
                 
                 <div class="input-group">
                     <label>现值 (PV) <span class="tooltip" data-tooltip="初始投资金额">?</span></label>
-                    <input type="number" id="compoundPV" value="10000" step="0.01">
+                    <input type="number" id="compoundPV" value="" step="0.01">
                 </div>
                 
                 <div class="input-row">
                     <div class="input-group">
                         <label>年利率 (%) <span class="tooltip" data-tooltip="年化收益率">?</span></label>
-                        <input type="number" id="compoundRate" value="5" step="0.01">
+                        <input type="number" id="compoundRate" value="" step="0.01">
                     </div>
                     <div class="input-group">
                         <label>期限 (年) <span class="tooltip" data-tooltip="投资年限">?</span></label>
-                        <input type="number" id="compoundYears" value="10" step="0.1">
+                        <input type="number" id="compoundYears" value="" step="0.1">
                     </div>
                 </div>
                 
                 <div class="input-group">
                     <label>定期投入 (PMT) <span class="tooltip" data-tooltip="每期追加投资，0表示一次性投入">?</span></label>
-                    <input type="number" id="compoundPMT" value="0" step="0.01">
+                    <input type="number" id="compoundPMT" value="" step="0.01">
                 </div>
                 
                 <div class="input-group">
@@ -425,17 +425,17 @@
                 
                 <div class="input-group">
                     <label>贷款总额 (元)</label>
-                    <input type="number" id="loanAmount" value="1000000" step="0.01">
+                    <input type="number" id="loanAmount" value="" step="0.01">
                 </div>
                 
                 <div class="input-row">
                     <div class="input-group">
                         <label>年利率 (%)</label>
-                        <input type="number" id="loanRate" value="4.9" step="0.01">
+                        <input type="number" id="loanRate" value="" step="0.01">
                     </div>
                     <div class="input-group">
                         <label>贷款期限 (年)</label>
-                        <input type="number" id="loanYears" value="30" step="1">
+                        <input type="number" id="loanYears" value="" step="1">
                     </div>
                 </div>
                 
@@ -459,23 +459,23 @@
                 
                 <div class="input-group">
                     <label>面值 (元) <span class="tooltip" data-tooltip="债券到期偿还的本金">?</span></label>
-                    <input type="number" id="bondFaceValue" value="1000" step="0.01">
+                    <input type="number" id="bondFaceValue" value="" step="0.01">
                 </div>
                 
                 <div class="input-row">
                     <div class="input-group">
                         <label>票面利率 (%)</label>
-                        <input type="number" id="bondCouponRate" value="5" step="0.01">
+                        <input type="number" id="bondCouponRate" value="" step="0.01">
                     </div>
                     <div class="input-group">
                         <label>剩余期限 (年)</label>
-                        <input type="number" id="bondYears" value="5" step="0.1">
+                        <input type="number" id="bondYears" value="" step="0.1">
                     </div>
                 </div>
                 
                 <div class="input-group">
                     <label>市场收益率 (%) <span class="tooltip" data-tooltip="用于定价的折现率">?</span></label>
-                    <input type="number" id="bondYield" value="6" step="0.01">
+                    <input type="number" id="bondYield" value="" step="0.01">
                 </div>
                 
                 <button class="btn-calculate" onclick="calculateBond()">计算债券价格</button>
@@ -490,16 +490,16 @@
                 
                 <div class="input-group">
                     <label>资产1权重 (%) <span class="tooltip" data-tooltip="输入权重百分比">?</span></label>
-                    <input type="number" id="weight1" value="50" step="0.1">
+                    <input type="number" id="weight1" value="" step="0.1">
                 </div>
                 <div class="input-group">
                     <label>资产1预期收益 (%) <span class="tooltip" data-tooltip="年化预期收益率">?</span></label>
-                    <input type="number" id="return1" value="8" step="0.01">
+                    <input type="number" id="return1" value="" step="0.01">
                 </div>
                 
                 <div class="input-group">
                     <label>资产2权重 (%) <span class="tooltip" data-tooltip="自动计算剩余权重">?</span></label>
-                    <input type="number" id="weight2" value="50" step="0.1">
+                    <input type="number" id="weight2" value="" step="0.1">
                 </div>
                 <div class="input-group">
                     <label>资产2预期收益 (%) <span class="tooltip" data-tooltip="年化预期收益率">?</span></label>
@@ -508,7 +508,7 @@
                 
                 <div class="input-group">
                     <label>相关系数 <span class="tooltip" data-tooltip="-1到1之间，0表示不相关">?</span></label>
-                    <input type="number" id="correlation" value="0.3" step="0.01" min="-1" max="1">
+                    <input type="number" id="correlation" value="" step="0.01" min="-1" max="1">
                 </div>
                 
                 <button class="btn-calculate" onclick="calculatePortfolio()">计算组合指标</button>
@@ -523,17 +523,17 @@
                 
                 <div class="input-group">
                     <label>无风险利率 (%) <span class="tooltip" data-tooltip="通常取国债收益率">?</span></label>
-                    <input type="number" id="riskFreeRate" value="3" step="0.01">
+                    <input type="number" id="riskFreeRate" value="" step="0.01">
                 </div>
                 
                 <div class="input-group">
                     <label>市场风险溢价 (%) <span class="tooltip" data-tooltip="市场预期收益-无风险利率">?</span></label>
-                    <input type="number" id="marketRiskPremium" value="5" step="0.01">
+                    <input type="number" id="marketRiskPremium" value="" step="0.01">
                 </div>
                 
                 <div class="input-group">
                     <label>Beta系数 <span class="tooltip" data-tooltip="系统风险系数，>1风险高于市场">?</span></label>
-                    <input type="number" id="beta" value="1.2" step="0.01">
+                    <input type="number" id="beta" value="" step="0.01">
                 </div>
                 
                 <button class="btn-calculate" onclick="calculateCapm()">计算预期收益</button>
@@ -548,17 +548,17 @@
                 
                 <div class="input-group">
                     <label>最近股利 (元) <span class="tooltip" data-tooltip="最近一期支付的股利">?</span></label>
-                    <input type="number" id="recentDividend" value="2" step="0.01">
+                    <input type="number" id="recentDividend" value="" step="0.01">
                 </div>
                 
                 <div class="input-group">
                     <label>股利增长率 (%) <span class="tooltip" data-tooltip="永续增长率g，应小于折现率">?</span></label>
-                    <input type="number" id="growthRate" value="3" step="0.01">
+                    <input type="number" id="growthRate" value="" step="0.01">
                 </div>
                 
                 <div class="input-group">
                     <label>要求回报率 (%) <span class="tooltip" data-tooltip="投资者的预期回报率">?</span></label>
-                    <input type="number" id="requiredReturn" value="10" step="0.01">
+                    <input type="number" id="requiredReturn" value="" step="0.01">
                 </div>
                 
                 <button class="btn-calculate" onclick="calculateDDM()">计算股票价值</button>
@@ -573,17 +573,17 @@
                 
                 <div class="input-group">
                     <label>初始投资 (元) <span class="tooltip" data-tooltip="期初现金流（负值）">?</span></label>
-                    <input type="number" id="initialInvestment" value="-100000" step="0.01">
+                    <input type="number" id="initialInvestment" value="value" step="0.01">
                 </div>
                 
                 <div class="input-group">
                     <label>现金流序列 (元，逗号分隔) <span class="tooltip" data-tooltip="例如: 20000,25000,30000">?</span></label>
-                    <input type="text" id="cashFlows" value="20000,25000,30000,28000,26000">
+                    <input type="text" id="cashFlows" value="">
                 </div>
                 
                 <div class="input-group">
                     <label>折现率 (%) <span class="tooltip" data-tooltip="资本成本或要求回报率">?</span></label>
-                    <input type="number" id="discountRate" value="8" step="0.01">
+                    <input type="number" id="discountRate" value="" step="0.01">
                 </div>
                 
                 <button class="btn-calculate" onclick="calculateNPV()">计算NPV/IRR</button>
@@ -598,17 +598,17 @@
                 
                 <div class="input-group">
                     <label>每期支付 (元) <span class="tooltip" data-tooltip="每期固定支付金额">?</span></label>
-                    <input type="number" id="annuityPayment" value="1000" step="0.01">
+                    <input type="number" id="annuityPayment" value="" step="0.01">
                 </div>
                 
                 <div class="input-row">
                     <div class="input-group">
                         <label>利率 (%)</label>
-                        <input type="number" id="annuityRate" value="5" step="0.01">
+                        <input type="number" id="annuityRate" value="" step="0.01">
                     </div>
                     <div class="input-group">
                         <label>期数</label>
-                        <input type="number" id="annuityPeriods" value="10" step="1">
+                        <input type="number" id="annuityPeriods" value="" step="1">
                     </div>
                 </div>
                 
@@ -633,7 +633,7 @@
                 
                 <div class="input-group">
                     <label>收益率序列 (%，逗号分隔) <span class="tooltip" data-tooltip="例如: 5,8,-3,12,6">?</span></label>
-                    <input type="text" id="returnSeries" value="5,8,-3,12,6,4,-1,9,7,3">
+                    <input type="text" id="returnSeries" value="">
                 </div>
                 
                 <button class="btn-calculate" onclick="calculateVolatility()">计算风险指标</button>
@@ -648,28 +648,28 @@
                 
                 <div class="input-group">
                     <label>标的资产价格</label>
-                    <input type="number" id="underlyingPrice" value="100" step="0.01">
+                    <input type="number" id="underlyingPrice" value="" step="0.01">
                 </div>
                 
                 <div class="input-row">
                     <div class="input-group">
                         <label>行权价</label>
-                        <input type="number" id="strikePrice" value="100" step="0.01">
+                        <input type="number" id="strikePrice" value="" step="0.01">
                     </div>
                     <div class="input-group">
                         <label>到期时间 (年)</label>
-                        <input type="number" id="timeToExpiry" value="1" step="0.01">
+                        <input type="number" id="timeToExpiry" value="" step="0.01">
                     </div>
                 </div>
                 
                 <div class="input-group">
                     <label>无风险利率 (%)</label>
-                    <input type="number" id="optionRiskFree" value="3" step="0.01">
+                    <input type="number" id="optionRiskFree" value="" step="0.01">
                 </div>
                 
                 <div class="input-group">
                     <label>波动率 (%)</label>
-                    <input type="number" id="optionVolatility" value="20" step="0.01">
+                    <input type="number" id="optionVolatility" value="" step="0.01">
                 </div>
                 
                 <button class="btn-calculate" onclick="calculateOptionGreeks()">计算希腊字母</button>
