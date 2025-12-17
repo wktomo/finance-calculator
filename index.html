@@ -11,7 +11,37 @@
             padding: 0;
             box-sizing: border-box;
         }
-
+        html, body {
+            height: 100%;
+            overflow: hidden; /* 关键：去掉浏览器默认的右侧大滚动条 */
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        .sidebar {
+            width: 250px;
+            height: 100%; /* 关键：填满父容器高度 */
+            background: rgba(255, 255, 255, 0.85); /* 稍微加深一点背景，提升对比度 */
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            
+            /* 关键：允许垂直滚动，禁止水平滚动 */
+            overflow-y: auto; 
+            overflow-x: hidden;
+            
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            border-right: 1px solid rgba(255,255,255,0.5);
+            flex-shrink: 0; /* 防止侧边栏被挤压 */
+            z-index: 10;
+        }
+                /* 2. 容器强制占满视口高度 */
+        .container {
+            display: flex;
+            height: 100vh; /* 关键：高度等于视口高度 */
+            width: 100%;
+            overflow: hidden;
+        }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background-color: #f5f5f5;
@@ -50,7 +80,7 @@
 
         .nav-title {
             font-size: 12px;
-            color: #666;
+            color: #2709d2;
             text-transform: uppercase;
             margin-bottom: 10px;
         }
@@ -58,7 +88,7 @@
         .nav-item {
             display: block;
             padding: 10px 15px;
-            color: #444;
+            color: #1186a3;
             text-decoration: none;
             border-radius: 8px;
             cursor: pointer;
@@ -81,10 +111,34 @@
         /* 主内容区 */
         .main-content {
             flex: 1;
-            padding: 30px;
+            height: 100%; /* 关键：填满父容器高度 */
+            
+            /* 关键：允许垂直滚动 */
             overflow-y: auto;
+            
+            padding: 30px;
+            position: relative;
+        }
+        ::-webkit-scrollbar {
+            width: 8px; /* 纵向滚动条宽度 */
+            height: 8px; /* 横向滚动条高度 */
         }
 
+        /* 滚动条轨道 */
+        ::-webkit-scrollbar-track {
+            background: transparent; 
+        }
+
+        /* 滚动条滑块 */
+        ::-webkit-scrollbar-thumb {
+            background: rgba(136, 136, 136, 0.3); 
+            border-radius: 4px;
+        }
+
+        /* 鼠标悬停在滑块上 */
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(136, 136, 136, 0.6); 
+        }
         .module-content {
             display: none;
             max-width: 900px;
@@ -104,7 +158,7 @@
         .module-header {
             font-size: 28px;
             margin-bottom: 10px;
-            color: #1a6dff;
+            color: #5a04a6;
         }
 
         .module-desc {
@@ -149,7 +203,7 @@
 
         /* 按钮样式 */
         .btn-calculate {
-            background: linear-gradient(135deg, #1a6dff, #0d5bd9);
+            background: linear-gradient(135deg, #9f0b43, #0d5bd9);
             color: white;
             padding: 12px 30px;
             border: none;
@@ -159,7 +213,7 @@
             cursor: pointer;
             transition: all 0.3s;
             margin: 20px 0;
-            box-shadow: 0 4px 10px rgba(26, 109, 255, 0.3);
+            box-shadow: 0 4px 10px rgba(15, 85, 206, 0.3);
         }
 
         .btn-calculate:hover {
@@ -213,7 +267,46 @@
             font-family: 'Courier New', monospace;
             border-left: 3px solid #1a6dff;
         }
+        @media (max-width: 768px) {
+            html, body {
+                overflow: auto; /* 手机上恢复默认滚动 */
+                height: auto;
+            }
+            
+            .container {
+                height: auto; /* 手机上高度自适应 */
+                flex-direction: column;
+                overflow: visible;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto; /* 手机上侧边栏不固定高度 */
+                max-height: 50vh; /* 限制最大高度，防止太长 */
+                position: fixed; /* 手机上可以用 fixed 定位菜单 */
+                top: 50px; /* 给顶部按钮留位置 */
+                left: 0;
+                bottom: 0;
+                transform: translateX(-100%); /* 默认隐藏 */
+                transition: transform 0.3s ease;
+            }
 
+            .sidebar.hidden {
+                display: block; /* 覆盖原来的 display:none */
+                transform: translateX(-100%);
+            }
+
+            /* 当侧边栏显示时的类（需要JS配合 toggle sidebar） */
+            .sidebar.mobile-active { 
+                transform: translateX(0);
+            }
+
+            .main-content {
+                height: auto;
+                overflow: visible;
+                padding-top: 60px; /* 避开移动端菜单按钮 */
+            }
+        }
         /* 响应式设计 */
         @media (max-width: 768px) {
             .container {
@@ -315,7 +408,7 @@
             display: inline-block;
             margin-left: 5px;
             cursor: help;
-            color: #1a6dff;
+            color: #7809e8;
             font-weight: bold;
         }
 
@@ -350,6 +443,7 @@
                 <a href="#" class="nav-item active" onclick="showModule('compound')">复利计算</a>
                 <a href="#" class="nav-item" onclick="showModule('loan')">贷款计算</a>
                 <a href="#" class="nav-item" onclick="showModule('bond')">债券定价</a>
+                <a href="#" class="nav-item" onclick="showModule('tri_arb')">三角套汇</a>
             </div>
             
             <div class="nav-section">
@@ -357,6 +451,7 @@
                 <a href="#" class="nav-item" onclick="showModule('portfolio')">投资组合</a>
                 <a href="#" class="nav-item" onclick="showModule('capm')">CAPM模型</a>
                 <a href="#" class="nav-item" onclick="showModule('ddm')">股票DDM</a>
+                <a href="#" class="nav-item" onclick="showModule('beta_calculator')">Beta与风险溢价</a>
             </div>
             
             <div class="nav-section">
@@ -368,14 +463,22 @@
             <div class="nav-section">
                 <div class="nav-title">风险管理</div>
                 <a href="#" class="nav-item" onclick="showModule('volatility')">波动率</a>
-                <a href="#" class="nav-item" onclick="showModule('option')">期权希腊字母</a>
+                <a href="#" class="nav-item" onclick="showModule('option')">期权关键值计算</a>
             </div>
             <div class="nav-section">
-            <div class="nav-title">高级模型</div>
-            <a href="#" class="nav-item" onclick="showModule('blackscholes')">Black-Scholes</a>
-            <a href="#" class="nav-item" onclick="showModule('var')">VaR风险值</a>
-            <a href="#" class="nav-item" onclick="showModule('sharpe')">夏普比率</a>
-            <a href="#" class="nav-item" onclick="showModule('wacc')">WACC成本</a>
+                <div class="nav-title">财务与资金</div>
+                <a href="#" class="nav-item" onclick="showModule('gjj_calc')">公积金计算器</a>
+                <a href="#" class="nav-item" onclick="showModule('dupont')">杜邦分析</a>
+                <a href="#" class="nav-item" onclick="showModule('kelly')">凯利公式</a>
+                <a href="#" class="nav-item" onclick="showModule('real_rate')">真实收益率</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-title">高级模型</div>
+                <a href="#" class="nav-item" onclick="showModule('blackscholes')">Black-Scholes</a>
+                <a href="#" class="nav-item" onclick="showModule('var')">VaR风险值</a>
+                <a href="#" class="nav-item" onclick="showModule('sharpe')">夏普比率</a>
+                <a href="#" class="nav-item" onclick="showModule('wacc')">WACC成本</a>
+                <a href="#" class="nav-item" onclick="showModule('copula')">Copula信用模型</a>
             </div>
 
             <div class="nav-section">
@@ -463,7 +566,51 @@
                 
                 <div class="results-section" id="loanResults"></div>
             </div>
+        <div class="module-content" id="gjj_calc">
+            <h2 class="module-header">公积金存缴计算</h2>
+            <p class="module-desc">计算个人与公司缴纳明细，评估年度资产积累</p>
             
+            <div class="input-group">
+                <label>缴纳基数 (元) <span class="tooltip" data-tooltip="通常为上一年度月平均工资，有上下限规定">?</span></label>
+                <input type="number" id="gjjBase" placeholder="例如: 10000" step="100">
+            </div>
+
+            <div class="input-row">
+                <div class="input-group">
+                    <label>个人缴存比例 (%)</label>
+                    <select id="gjjPersonalRate">
+                        <option value="5">5%</option>
+                        <option value="6">6%</option>
+                        <option value="7">7%</option>
+                        <option value="8">8%</option>
+                        <option value="9">9%</option>
+                        <option value="10">10%</option>
+                        <option value="11">11%</option>
+                        <option value="12" selected>12% (常见)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>公司缴存比例 (%)</label>
+                    <select id="gjjCompanyRate">
+                        <option value="5">5%</option>
+                        <option value="6">6%</option>
+                        <option value="7">7%</option>
+                        <option value="8">8%</option>
+                        <option value="9">9%</option>
+                        <option value="10">10%</option>
+                        <option value="11">11%</option>
+                        <option value="12" selected>12% (常见)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 20px; font-size: 14px;">
+                <a href="javascript:void(0)" onclick="syncGJJRates()" style="color: #1a6dff; text-decoration: none;">🔗 个人与公司比例保持一致</a>
+            </div>
+
+            <button class="btn-calculate" onclick="calculateGJJ()">计算存缴明细</button>
+            <div class="results-section" id="gjjResults"></div>
+        </div>
             <!-- 债券定价模块 -->
             <div class="module-content" id="bond">
                 <h2 class="module-header">债券定价与收益率</h2>
@@ -653,9 +800,9 @@
                 <div class="results-section" id="volatilityResults"></div>
             </div>
             
-            <!-- 期权希腊字母模块 -->
+            <!-- 期权关键值计算模块 -->
             <div class="module-content" id="option">
-                <h2 class="module-header">期权希腊字母</h2>
+                <h2 class="module-header">期权关键值计算</h2>
                 <p class="module-desc">期权Delta和Gamma近似计算</p>
                 
                 <div class="input-group">
@@ -689,161 +836,331 @@
                 
                 <div class="results-section" id="optionResults"></div>
             </div>
+            <div class="module-content" id="copula">
+                <h2 class="module-header">Gaussian Copula 违约相关性模型</h2>
+                <p class="module-desc">计算两个资产在特定相关性下的联合违约概率 (Joint Default Probability)</p>
+                
+                
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>资产 A 违约概率 (PD A) %</label>
+                        <input type="number" id="copulaPdA" placeholder="例如: 5" step="0.1">
+                    </div>
+                    <div class="input-group">
+                        <label>资产 B 违约概率 (PD B) %</label>
+                        <input type="number" id="copulaPdB" placeholder="例如: 10" step="0.1">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>违约相关系数 (Correlation, ρ) <span class="tooltip" data-tooltip="-1到1之间。0为无关，1为完全正相关">?</span></label>
+                    <input type="number" id="copulaRho" placeholder="例如: 0.3" step="0.05" min="-0.99" max="0.99">
+                </div>
+
+                <div style="background: rgba(26, 109, 255, 0.05); padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; color: #666;">
+                    <strong>模型说明：</strong> 使用二元高斯 Copula 函数将单体风险映射到联合风险分布。这是 CDO (担保债务凭证) 定价的基础逻辑。
+                </div>
+
+                <button class="btn-calculate" onclick="calculateCopula()">计算联合风险</button>
+                <div class="results-section" id="copulaResults"></div>
+            </div>
             <!-- Black-Scholes完整定价模块 -->
-<div class="module-content" id="blackscholes">
-    <h2 class="module-header">Black-Scholes期权定价</h2>
-    <p class="module-desc">完整的Black-Scholes期权定价模型</p>
-    
-    <div class="input-row">
-        <div class="input-group">
-            <label>标的资产价格 (S)</label>
-            <input type="number" id="bsStock" value="" step="0.01">
-        </div>
-        <div class="input-group">
-            <label>行权价 (K)</label>
-            <input type="number" id="bsStrike" value="" step="0.01">
-        </div>
-    </div>
-    
-    <div class="input-row">
-        <div class="input-group">
-            <label>到期时间 (年)</label>
-            <input type="number" id="bsTime" value="" step="0.01">
-        </div>
-        <div class="input-group">
-            <label>波动率 (%)</label>
-            <input type="number" id="bsVol" value="" step="0.1">
-        </div>
-    </div>
-    
-    <div class="input-row">
-        <div class="input-group">
-            <label>无风险利率 (%)</label>
-            <input type="number" id="bsRate" value="" step="0.01">
-        </div>
-        <div class="input-group">
-            <label>股息率 (%)</label>
-            <input type="number" id="bsDividend" value="" step="0.01">
-        </div>
-    </div>
-    
-    <button class="btn-calculate" onclick="calculateBlackScholes()">计算期权价格</button>
-    
-    <div class="results-section" id="bsResults"></div>
-</div>
+            <div class="module-content" id="blackscholes">
+                <h2 class="module-header">Black-Scholes期权定价</h2>
+                <p class="module-desc">完整的Black-Scholes期权定价模型</p>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>标的资产价格 (S)</label>
+                        <input type="number" id="bsStock" value="" step="0.01">
+                    </div>
+                    <div class="input-group">
+                        <label>行权价 (K)</label>
+                        <input type="number" id="bsStrike" value="" step="0.01">
+                    </div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>到期时间 (年)</label>
+                        <input type="number" id="bsTime" value="" step="0.01">
+                    </div>
+                    <div class="input-group">
+                        <label>波动率 (%)</label>
+                        <input type="number" id="bsVol" value="" step="0.1">
+                    </div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>无风险利率 (%)</label>
+                        <input type="number" id="bsRate" value="" step="0.01">
+                    </div>
+                    <div class="input-group">
+                        <label>股息率 (%)</label>
+                        <input type="number" id="bsDividend" value="" step="0.01">
+                    </div>
+                </div>
+                
+                <button class="btn-calculate" onclick="calculateBlackScholes()">计算期权价格</button>
+                
+                <div class="results-section" id="bsResults"></div>
+            </div>
 
-<!-- VaR风险值计算模块 -->
-<div class="module-content" id="var">
-    <h2 class="module-header">VaR风险价值计算</h2>
-    <p class="module-desc">计算投资组合的在险价值</p>
-    
-    <div class="input-group">
-        <label>投资组合价值 (元)</label>
-        <input type="number" id="varPortfolio" value="" step="1000">
-    </div>
-    
-    <div class="input-row">
-        <div class="input-group">
-            <label>预期收益率 (%)</label>
-            <input type="number" id="varReturn" value="" step="0.1">
-        </div>
-        <div class="input-group">
-            <label>波动率 (%)</label>
-            <input type="number" id="varVolatility" value="" step="0.1">
-        </div>
-    </div>
-    
-    <div class="input-row">
-        <div class="input-group">
-            <label>置信水平</label>
-            <select id="varConfidence">
-                <option value="0.90">90%</option>
-                <option value="0.95" selected>95%</option>
-                <option value="0.99">99%</option>
-            </select>
-        </div>
-        <div class="input-group">
-            <label>时间范围 (天)</label>
-            <input type="number" id="varDays" value="1" step="1">
-        </div>
-    </div>
-    
-    <button class="btn-calculate" onclick="calculateVaR()">计算VaR</button>
-    
-    <div class="results-section" id="varResults"></div>
-</div>
+            <!-- VaR风险值计算模块 -->
+            <div class="module-content" id="var">
+                <h2 class="module-header">VaR风险价值计算</h2>
+                <p class="module-desc">计算投资组合的在险价值</p>
+                
+                <div class="input-group">
+                    <label>投资组合价值 (元)</label>
+                    <input type="number" id="varPortfolio" value="" step="1000">
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>预期收益率 (%)</label>
+                        <input type="number" id="varReturn" value="" step="0.1">
+                    </div>
+                    <div class="input-group">
+                        <label>波动率 (%)</label>
+                        <input type="number" id="varVolatility" value="" step="0.1">
+                    </div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>置信水平</label>
+                        <select id="varConfidence">
+                            <option value="0.90">90%</option>
+                            <option value="0.95" selected>95%</option>
+                            <option value="0.99">99%</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>时间范围 (天)</label>
+                        <input type="number" id="varDays" value="1" step="1">
+                    </div>
+                </div>
+                
+                <button class="btn-calculate" onclick="calculateVaR()">计算VaR</button>
+                
+                <div class="results-section" id="varResults"></div>
+            </div>
+            <div class="module-content" id="dupont">
+                <h2 class="module-header">杜邦分析体系 (DuPont Analysis)</h2>
+                <p class="module-desc">将ROE拆解为销售净利率、资产周转率和权益乘数</p>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>净利润 (Net Income)</label>
+                        <input type="number" id="dupontNI" step="1000">
+                    </div>
+                    <div class="input-group">
+                        <label>营业收入 (Revenue)</label>
+                        <input type="number" id="dupontRev" step="1000">
+                    </div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>平均总资产 (Assets)</label>
+                        <input type="number" id="dupontAssets" step="1000">
+                    </div>
+                    <div class="input-group">
+                        <label>平均股东权益 (Equity)</label>
+                        <input type="number" id="dupontEquity" step="1000">
+                    </div>
+                </div>
+                
+                <button class="btn-calculate" onclick="calculateDupont()">拆解 ROE</button>
+                <div class="results-section" id="dupontResults"></div>
+            </div>
 
-<!-- 夏普比率分析模块 -->
-<div class="module-content" id="sharpe">
-    <h2 class="module-header">夏普比率与风险调整收益</h2>
-    <p class="module-desc">评估投资组合的风险调整后表现</p>
-    
-    <div class="input-group">
-        <label>投资组合年化收益率 (%)</label>
-        <input type="number" id="sharpeReturn" value="" step="0.1">
-    </div>
-    
-    <div class="input-group">
-        <label>无风险利率 (%)</label>
-        <input type="number" id="sharpeRiskFree" value="" step="0.1">
-    </div>
-    
-    <div class="input-group">
-        <label>投资组合标准差 (%)</label>
-        <input type="number" id="sharpeStdDev" value="" step="0.1">
-    </div>
-    
-    <div class="input-group">
-        <label>市场基准收益率 (%) <span class="tooltip" data-tooltip="用于计算Treynor和Jensen's Alpha">?</span></label>
-        <input type="number" id="sharpeMarketReturn" value="" step="0.1">
-    </div>
-    
-    <div class="input-group">
-        <label>Beta系数</label>
-        <input type="number" id="sharpeBeta" value="" step="0.01">
-    </div>
-    
-    <button class="btn-calculate" onclick="calculateSharpe()">计算风险指标</button>
-    
-    <div class="results-section" id="sharpeResults"></div>
-</div>
+            <div class="module-content" id="kelly">
+                <h2 class="module-header">凯利公式 (Kelly Criterion)</h2>
+                <p class="module-desc">计算投资或博弈中的最优资金下注比例</p>
+                
+                <div class="input-group">
+                    <label>获胜概率 (%) <span class="tooltip" data-tooltip="你预估这笔交易盈利的可能性">?</span></label>
+                    <input type="number" id="kellyWinProb" placeholder="例如: 60" step="1">
+                </div>
+                
+                <div class="input-group">
+                    <label>赔率 (盈亏比) <span class="tooltip" data-tooltip="盈利金额 / 亏损金额 (例如赚2赔1，赔率为2)">?</span></label>
+                    <input type="number" id="kellyOdds" placeholder="例如: 1.5" step="0.1">
+                </div>
+                
+                <div class="input-group">
+                    <label>当前本金 (元) <span class="tooltip" data-tooltip="用于计算具体建议投入金额">?</span></label>
+                    <input type="number" id="kellyCapital" step="1000">
+                </div>
+                
+                <button class="btn-calculate" onclick="calculateKelly()">计算最佳仓位</button>
+                <div class="results-section" id="kellyResults"></div>
+            </div>
 
-<!-- WACC加权平均资本成本模块 -->
-<div class="module-content" id="wacc">
-    <h2 class="module-header">WACC加权平均资本成本</h2>
-    <p class="module-desc">计算企业的资本成本</p>
-    
-    <div class="input-group">
-        <label>权益市值 (万元)</label>
-        <input type="number" id="waccEquity" value="" step="100">
-    </div>
-    
-    <div class="input-group">
-        <label>债务市值 (万元)</label>
-        <input type="number" id="waccDebt" value="" step="100">
-    </div>
-    
-    <div class="input-row">
-        <div class="input-group">
-            <label>权益成本 (%) <span class="tooltip" data-tooltip="股东要求回报率">?</span></label>
-            <input type="number" id="waccCostEquity" value="" step="0.1">
-        </div>
-        <div class="input-group">
-            <label>债务成本 (%) <span class="tooltip" data-tooltip="税前债务成本">?</span></label>
-            <input type="number" id="waccCostDebt" value="" step="0.1">
-        </div>
-    </div>
-    
-    <div class="input-group">
-        <label>企业所得税率 (%)</label>
-        <input type="number" id="waccTaxRate" value="" step="0.1">
-    </div>
-    
-    <button class="btn-calculate" onclick="calculateWACC()">计算WACC</button>
-    
-    <div class="results-section" id="waccResults"></div>
-</div>
+            <div class="module-content" id="real_rate">
+                <h2 class="module-header">真实收益率 (费雪效应)</h2>
+                <p class="module-desc">计算扣除通货膨胀后的实际购买力增长</p>
+                
+                <div class="input-group">
+                    <label>名义收益率 (%) <span class="tooltip" data-tooltip="银行存款利率或投资账面回报">?</span></label>
+                    <input type="number" id="nominalRate" step="0.1">
+                </div>
+                
+                <div class="input-group">
+                    <label>通货膨胀率 (%) <span class="tooltip" data-tooltip="CPI指数或预期通胀">?</span></label>
+                    <input type="number" id="inflationRate" step="0.1">
+                </div>
+                
+                <button class="btn-calculate" onclick="calculateRealRate()">计算真实回报</button>
+                <div class="results-section" id="realRateResults"></div>
+            </div>
+            <!-- 夏普比率分析模块 -->
+            <div class="module-content" id="sharpe">
+                <h2 class="module-header">夏普比率与风险调整收益</h2>
+                <p class="module-desc">评估投资组合的风险调整后表现</p>
+                
+                <div class="input-group">
+                    <label>投资组合年化收益率 (%)</label>
+                    <input type="number" id="sharpeReturn" value="" step="0.1">
+                </div>
+                
+                <div class="input-group">
+                    <label>无风险利率 (%)</label>
+                    <input type="number" id="sharpeRiskFree" value="" step="0.1">
+                </div>
+                
+                <div class="input-group">
+                    <label>投资组合标准差 (%)</label>
+                    <input type="number" id="sharpeStdDev" value="" step="0.1">
+                </div>
+                
+                <div class="input-group">
+                    <label>市场基准收益率 (%) <span class="tooltip" data-tooltip="用于计算Treynor和Jensen's Alpha">?</span></label>
+                    <input type="number" id="sharpeMarketReturn" value="" step="0.1">
+                </div>
+                
+                <div class="input-group">
+                    <label>Beta系数</label>
+                    <input type="number" id="sharpeBeta" value="" step="0.01">
+                </div>
+                
+                <button class="btn-calculate" onclick="calculateSharpe()">计算风险指标</button>
+                
+                <div class="results-section" id="sharpeResults"></div>
+            </div>
+        <div class="module-content" id="tri_arb">
+            <h2 class="module-header">三角套汇计算器</h2>
+            <p class="module-desc">计算三种货币间循环兑换的无风险套利机会 (A → B → C → A)</p>
+            
+            
 
+            <div class="input-group" style="background: rgba(26, 109, 255, 0.05); padding: 15px; border-radius: 8px;">
+                <label>1. 初始本金 (货币 A)</label>
+                <input type="number" id="arbCapital" placeholder="例如: 100000 (CNY)" step="100">
+            </div>
+
+            <div style="margin: 20px 0; border-left: 2px dashed #ccc; padding-left: 20px; margin-left: 10px;">
+                <div class="input-group">
+                    <label>2. 第一腿汇率 (A → B) <span class="tooltip" data-tooltip="1单位货币A能换多少货币B">?</span></label>
+                    <input type="number" id="arbRateAB" placeholder="例如 CNY/USD: 0.14" step="0.0001">
+                </div>
+
+                <div class="input-group">
+                    <label>3. 第二腿汇率 (B → C) <span class="tooltip" data-tooltip="1单位货币B能换多少货币C">?</span></label>
+                    <input type="number" id="arbRateBC" placeholder="例如 USD/EUR: 0.92" step="0.0001">
+                </div>
+
+                <div class="input-group">
+                    <label>4. 第三腿汇率 (C → A) <span class="tooltip" data-tooltip="1单位货币C能换多少货币A">?</span></label>
+                    <input type="number" id="arbRateCA" placeholder="例如 EUR/CNY: 7.85" step="0.0001">
+                </div>
+            </div>
+
+            <button class="btn-calculate" onclick="calculateTriArb()">检测套利机会</button>
+            <div class="results-section" id="arbResults"></div>
+        </div>
+            <!-- WACC加权平均资本成本模块 -->
+            <div class="module-content" id="wacc">
+                <h2 class="module-header">WACC加权平均资本成本</h2>
+                <p class="module-desc">计算企业的资本成本</p>
+                
+                <div class="input-group">
+                    <label>权益市值 (万元)</label>
+                    <input type="number" id="waccEquity" value="" step="100">
+                </div>
+                
+                <div class="input-group">
+                    <label>债务市值 (万元)</label>
+                    <input type="number" id="waccDebt" value="" step="100">
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>权益成本 (%) <span class="tooltip" data-tooltip="股东要求回报率">?</span></label>
+                        <input type="number" id="waccCostEquity" value="" step="0.1">
+                    </div>
+                    <div class="input-group">
+                        <label>债务成本 (%) <span class="tooltip" data-tooltip="税前债务成本">?</span></label>
+                        <input type="number" id="waccCostDebt" value="" step="0.1">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>企业所得税率 (%)</label>
+                    <input type="number" id="waccTaxRate" value="" step="0.1">
+                </div>
+                
+                <button class="btn-calculate" onclick="calculateWACC()">计算WACC</button>
+                
+                <div class="results-section" id="waccResults"></div>
+            </div>
+        <div class="module-content" id="beta_calculator">
+            <h2 class="module-header">Beta系数与市场溢价</h2>
+            <p class="module-desc">计算资产相对于市场的系统性风险(Beta)及市场风险溢价</p>
+
+            <div style="margin-bottom: 20px; border-bottom: 1px solid #ddd;">
+                <button onclick="toggleBetaTab('calc-beta')" style="padding: 10px 20px; border: none; background: none; color: #1a6dff; font-weight: bold; cursor: pointer;">Beta计算 (回归法)</button>
+                <button onclick="toggleBetaTab('calc-mrp')" style="padding: 10px 20px; border: none; background: none; color: #0ee535; cursor: pointer;">市场风险溢价</button>
+            </div>
+
+            <div id="calc-beta-section">
+                <div class="input-group">
+                    <label>资产收益率序列 (%) <span class="tooltip" data-tooltip="个股或组合的历史收益率，逗号分隔">?</span></label>
+                    <input type="text" id="assetReturns" placeholder="例如: 2.5, 3.0, -1.2, 4.5, ..." value="">
+                </div>
+                <div class="input-group">
+                    <label>市场收益率序列 (%) <span class="tooltip" data-tooltip="对应同期的基准指数收益率，逗号分隔">?</span></label>
+                    <input type="text" id="marketReturns" placeholder="例如: 1.5, 2.0, -0.5, 3.0, ..." value="">
+                </div>
+                <div class="input-group">
+                    <label>无风险利率 (%) <span class="tooltip" data-tooltip="可选，用于计算超额收益Beta">?</span></label>
+                    <input type="number" id="betaRiskFree" value="0" step="0.01">
+                </div>
+                <button class="btn-calculate" onclick="calculateBetaValue()">计算 Beta</button>
+                <div class="results-section" id="betaResults"></div>
+            </div>
+
+            <div id="calc-mrp-section" style="display: none;">
+                <div class="input-group">
+                    <label>预期市场回报率 (%) <span class="tooltip" data-tooltip="Rm：市场平均预期回报">?</span></label>
+                    <input type="number" id="mrpMarketReturn" value="" step="0.1">
+                </div>
+                <div class="input-group">
+                    <label>无风险利率 (%) <span class="tooltip" data-tooltip="Rf：长期国债收益率">?</span></label>
+                    <input type="number" id="mrpRiskFree" value="" step="0.1">
+                </div>
+                <div class="input-group">
+                    <label>国家风险溢价 (%) <span class="tooltip" data-tooltip="可选：新兴市场的额外风险补偿">?</span></label>
+                    <input type="number" id="mrpCountryRisk" value="0" step="0.1">
+                </div>
+                <button class="btn-calculate" onclick="calculateMRPValue()">计算溢价</button>
+                <div class="results-section" id="mrpResults"></div>
+            </div>
+        </div>
 <!-- 开发团队介绍模块 -->
 <div class="module-content" id="team">
     <h2 class="module-header">开发团队介绍</h2>
@@ -932,17 +1249,17 @@
             <!-- 成员5 -->
             <div class="result-item" style="text-align: center; padding: 25px;">
                 <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; font-weight: bold;">
-                    无
+                    卿
                 </div>
-                <h4 style="color: #333; margin-bottom: 5px;">无</h4>
-                <p style="color: #1a6dff; font-size: 14px; margin-bottom: 10px;">产品经理</p>
+                <h4 style="color: #333; margin-bottom: 5px;">柳岸</h4>
+                <p style="color: #1a6dff; font-size: 14px; margin-bottom: 10px;">投资分析师</p>
                 <p style="color: #666; font-size: 13px; line-height: 1.6;">
-                    无<br>
-                    无<br>
-                    招租中
+                    1米9黑皮<br>
+                    健身是日常必修课<br>
+                    撸铁爱好者本爱
                 </p>
                 <div style="margin-top: 15px; font-size: 12px; color: #999;">
-                    擅长：无
+                    擅长：投资分析和健身
                 </div>
             </div>
             
@@ -992,11 +1309,25 @@
         });
 
         // 侧边栏切换（移动端）
+// 侧边栏切换（移动端优化版）
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('hidden');
+            // 如果之前是用 hidden 类控制 display:none，现在我们切换一个 active 类来做动画
+            if (sidebar.style.display === 'none' || sidebar.classList.contains('hidden')) {
+                sidebar.classList.remove('hidden');
+                sidebar.style.display = 'block'; // 确保显示
+                // 稍微延迟一下添加动画类，以便 display:block 生效
+                setTimeout(() => {
+                    sidebar.style.transform = 'translateX(0)';
+                }, 10);
+            } else {
+                // 关闭菜单
+                sidebar.style.transform = 'translateX(-100%)';
+                setTimeout(() => {
+                    sidebar.classList.add('hidden');
+                }, 300); // 等待动画结束
+            }
         }
-
         // 切换模块
         function showModule(moduleId) {
             // 隐藏所有模块
@@ -1633,7 +1964,7 @@
             addToHistory('波动率', `年化波动率 ${formatNumber(annualizedVolatility * 100, 2)}%`);
         }
 
-        // 期权希腊字母计算
+        // 期权关键值计算计算
         function calculateOptionGreeks() {
             const S = parseFloat(document.getElementById('underlyingPrice').value);
             const K = parseFloat(document.getElementById('strikePrice').value);
@@ -1718,7 +2049,7 @@
             `;
             
             document.getElementById('optionResults').outerHTML = resultsHTML;
-            addToHistory('期权希腊字母', `Delta ${formatNumber(delta, 3)}`);
+            addToHistory('期权关键值计算', `Delta ${formatNumber(delta, 3)}`);
         }
 
         // 导出功能
@@ -2079,7 +2410,522 @@ function calculateWACC() {
     document.getElementById('waccResults').outerHTML = resultsHTML;
     addToHistory('WACC计算', `WACC ${formatNumber(wacc * 100, 2)}%`);
 }
+    function toggleBetaTab(tabId) {
+    const betaSection = document.getElementById('calc-beta-section');
+    const mrpSection = document.getElementById('calc-mrp-section');
+    
+    if (tabId === 'calc-beta') {
+        betaSection.style.display = 'block';
+        mrpSection.style.display = 'none';
+    } else {
+        betaSection.style.display = 'none';
+        mrpSection.style.display = 'block';
+    }
+}
 
+// 2. 计算 Beta 系数 (核心逻辑)
+        function calculateBetaValue() {
+            const assetInput = document.getElementById('assetReturns').value;
+            const marketInput = document.getElementById('marketReturns').value;
+            const rf = parseFloat(document.getElementById('betaRiskFree').value) || 0;
+
+            // 解析输入
+            if (!assetInput || !marketInput) {
+                alert("请输入资产和市场的收益率序列");
+                return;
+            }
+
+            const assetYi = assetInput.split(',').map(x => parseFloat(x.trim()));
+            const marketXi = marketInput.split(',').map(x => parseFloat(x.trim()));
+
+            if (assetYi.length !== marketXi.length) {
+                alert(`数据长度不一致！资产数据有 ${assetYi.length} 个，市场数据有 ${marketXi.length} 个。请确保两者一一对应。`);
+                return;
+            }
+
+            if (assetYi.length < 2) {
+                alert("数据样本太少，无法计算统计指标。");
+                return;
+            }
+
+            const n = assetYi.length;
+            
+            // 如果无风险利率不为0，计算超额收益 (Ri - Rf) 和 (Rm - Rf)
+            // 这里为了简化，直接使用原始收益率计算（Raw Beta），如果用户输入了Rf，可以作为 Adjusted Beta 的参考，
+            // 但通常计算器使用斜率公式 Slope(Ra, Rm)
+            
+            // 计算均值
+            const sumX = marketXi.reduce((a, b) => a + b, 0);
+            const sumY = assetYi.reduce((a, b) => a + b, 0);
+            const meanX = sumX / n;
+            const meanY = sumY / n;
+
+            // 计算协方差和方差
+            let numerator = 0; // Cov(X,Y) 的分子
+            let denominator = 0; // Var(X) 的分子
+            
+            for (let i = 0; i < n; i++) {
+                numerator += (marketXi[i] - meanX) * (assetYi[i] - meanY);
+                denominator += Math.pow((marketXi[i] - meanX), 2);
+            }
+
+            const beta = numerator / denominator;
+            
+            // 计算 Alpha (截距) = MeanY - Beta * MeanX
+            const alpha = meanY - beta * meanX;
+
+            // 计算相关系数 (Correlation) 用于辅助分析
+            const sumSqDiffY = assetYi.reduce((sum, val) => sum + Math.pow(val - meanY, 2), 0);
+            const rSquared = Math.pow(numerator, 2) / (denominator * sumSqDiffY);
+            const correlation = Math.sqrt(rSquared) * (beta >= 0 ? 1 : -1);
+
+            // 结果 HTML
+            const resultsHTML = `
+                <div class="results-section show" id="betaResults">
+                    <div class="result-item">
+                        <div class="result-label">Beta 系数 (β)</div>
+                        <div class="result-value">${formatNumber(beta, 4)}</div>
+                        <div class="result-formula">β = Cov(Ri, Rm) / Var(Rm)</div>
+                    </div>
+                    
+                    <div class="input-row">
+                        <div class="result-item">
+                            <div class="result-label">Alpha (α)</div>
+                            <div class="result-value">${formatNumber(alpha, 4)}%</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">相关系数 (R)</div>
+                            <div class="result-value">${formatNumber(correlation, 4)}</div>
+                        </div>
+                    </div>
+
+                    <div class="result-item">
+                        <div class="result-label">风险评估</div>
+                        <div class="result-value" style="font-size: 16px; color: #555;">
+                            ${beta > 1 ? '高波动：波动幅度大于市场' : beta < 1 && beta > 0 ? '低波动：波动幅度小于市场' : beta < 0 ? '反向波动：与市场走势相反' : '无波动'}
+                        </div>
+                    </div>
+
+                    <div class="export-buttons">
+                        <button class="btn-export" onclick="exportToPNG()">导出PNG</button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('betaResults').outerHTML = resultsHTML;
+            addToHistory('Beta计算', `Beta: ${formatNumber(beta, 2)}`);
+        }
+
+        // 3. 计算 市场风险溢价 (MRP)
+        function calculateMRPValue() {
+            const rm = parseFloat(document.getElementById('mrpMarketReturn').value);
+            const rf = parseFloat(document.getElementById('mrpRiskFree').value);
+            const crp = parseFloat(document.getElementById('mrpCountryRisk').value) || 0;
+
+            if (isNaN(rm) || isNaN(rf)) {
+                alert("请输入市场回报率和无风险利率");
+                return;
+            }
+
+            // 基本公式 MRP = Rm - Rf
+            // 包含国家风险: Total MRP = (Rm - Rf) + CRP
+            const baseMRP = rm - rf;
+            const totalMRP = baseMRP + crp;
+
+            // 结果 HTML
+            const resultsHTML = `
+                <div class="results-section show" id="mrpResults">
+                    <div class="result-item">
+                        <div class="result-label">市场风险溢价 (MRP)</div>
+                        <div class="result-value">${formatNumber(totalMRP, 2)}%</div>
+                        <div class="result-formula">MRP = E(Rm) - Rf ${crp !== 0 ? '+ CRP' : ''}</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">计算细节</div>
+                        <div style="color: #666; font-size: 14px; margin-top: 10px;">
+                            市场预期回报: ${rm}%<br>
+                            - 无风险利率: ${rf}%<br>
+                            + 国家风险补偿: ${crp}%
+                        </div>
+                    </div>
+
+                    <div class="export-buttons">
+                        <button class="btn-export" onclick="exportToPNG()">导出PNG</button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('mrpResults').outerHTML = resultsHTML;
+            addToHistory('风险溢价计算', `MRP: ${formatNumber(totalMRP, 2)}%`);
+        }
+                // 1. 杜邦分析计算
+        function calculateDupont() {
+            const ni = parseFloat(document.getElementById('dupontNI').value);
+            const rev = parseFloat(document.getElementById('dupontRev').value);
+            const assets = parseFloat(document.getElementById('dupontAssets').value);
+            const equity = parseFloat(document.getElementById('dupontEquity').value);
+            
+            if (!ni || !rev || !assets || !equity) {
+                alert("请填写所有数据字段");
+                return;
+            }
+
+            // 计算三大指标
+            const netMargin = ni / rev; // 销售净利率
+            const assetTurnover = rev / assets; // 资产周转率
+            const equityMultiplier = assets / equity; // 权益乘数
+            const roe = netMargin * assetTurnover * equityMultiplier;
+
+            const resultsHTML = `
+                <div class="results-section show" id="dupontResults">
+                    <div class="result-item" style="background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); border-left: 4px solid #1a6dff;">
+                        <div class="result-label">ROE (净资产收益率)</div>
+                        <div class="result-value" style="color: #1a6dff;">${formatNumber(roe * 100, 2)}%</div>
+                    </div>
+                    
+                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-top:15px;">
+                        <div class="result-item" style="text-align:center; padding:10px;">
+                            <div style="font-size:12px; color:#666;">销售净利率</div>
+                            <div style="font-weight:bold; color:#333; margin-top:5px;">${formatNumber(netMargin * 100, 2)}%</div>
+                            <div style="font-size:10px; color:#999;">盈利能力</div>
+                        </div>
+                        <div class="result-item" style="text-align:center; padding:10px;">
+                            <div style="font-size:12px; color:#666;">资产周转率</div>
+                            <div style="font-weight:bold; color:#333; margin-top:5px;">${formatNumber(assetTurnover, 2)}次</div>
+                            <div style="font-size:10px; color:#999;">营运能力</div>
+                        </div>
+                        <div class="result-item" style="text-align:center; padding:10px;">
+                            <div style="font-size:12px; color:#666;">权益乘数</div>
+                            <div style="font-weight:bold; color:#333; margin-top:5px;">${formatNumber(equityMultiplier, 2)}</div>
+                            <div style="font-size:10px; color:#999;">杠杆水平</div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-formula">ROE = 净利率 × 周转率 × 权益乘数</div>
+                    </div>
+                    
+                    <div class="export-buttons">
+                        <button class="btn-export" onclick="exportToPNG()">导出PNG</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('dupontResults').outerHTML = resultsHTML;
+            addToHistory('杜邦分析', `ROE ${formatNumber(roe * 100, 2)}%`);
+        }
+        function checkLimit(base) {
+            // 假设某城市上限是 36000
+            const UPPER_LIMIT = 36000; 
+            if (base > UPPER_LIMIT) {
+                return UPPER_LIMIT; // 自动截断
+            }
+            return base;
+        }
+        // 2. 凯利公式计算
+        function calculateKelly() {
+            const p = parseFloat(document.getElementById('kellyWinProb').value) / 100; // 胜率
+            const b = parseFloat(document.getElementById('kellyOdds').value); // 赔率
+            const capital = parseFloat(document.getElementById('kellyCapital').value) || 0;
+            
+            // 凯利公式 f* = (bp - q) / b = p - q/b
+            // q = 1 - p (败率)
+            const q = 1 - p;
+            let f = (b * p - q) / b;
+            
+            // 如果期望收益为负，f会小于0
+            const isProfitable = f > 0;
+            
+            // 凯利通常建议半仓 (Half Kelly) 以降低波动
+            const halfKelly = f / 2;
+
+            const resultsHTML = `
+                <div class="results-section show" id="kellyResults">
+                    <div class="result-item">
+                        <div class="result-label">凯利建议仓位 (Full Kelly)</div>
+                        <div class="result-value" style="color: ${isProfitable ? '#27ae60' : '#e74c3c'}">
+                            ${isProfitable ? formatNumber(f * 100, 2) + '%' : '不建议下注'}
+                        </div>
+                        ${capital > 0 && isProfitable ? `<div style="margin-top:5px; color:#666;">建议金额: ¥${formatNumber(capital * f)}</div>` : ''}
+                    </div>
+                    
+                    ${isProfitable ? `
+                    <div class="result-item">
+                        <div class="result-label">半凯利 (稳健建议)</div>
+                        <div class="result-value" style="color: #2980b9;">${formatNumber(halfKelly * 100, 2)}%</div>
+                        ${capital > 0 ? `<div style="margin-top:5px; color:#666;">建议金额: ¥${formatNumber(capital * halfKelly)}</div>` : ''}
+                    </div>
+                    ` : ''}
+
+                    <div class="result-item">
+                        <div class="result-label">期望收益</div>
+                        <div class="result-value">${formatNumber((p * b - q) * 100, 2)}%</div>
+                        <div class="result-formula">每次交易的平均预期回报率</div>
+                    </div>
+                    
+                    <div class="export-buttons">
+                        <button class="btn-export" onclick="exportToPNG()">导出PNG</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('kellyResults').outerHTML = resultsHTML;
+            addToHistory('凯利公式', `建议仓位 ${isProfitable ? formatNumber(f * 100, 2) + '%' : '0%'}`);
+        }
+
+        // 3. 真实收益率 (费雪效应)
+        function calculateRealRate() {
+            const nominal = parseFloat(document.getElementById('nominalRate').value) / 100;
+            const inflation = parseFloat(document.getElementById('inflationRate').value) / 100;
+            
+            // 精确公式: (1 + 名义) = (1 + 真实) * (1 + 通胀)
+            // 真实 = (1 + 名义) / (1 + 通胀) - 1
+            const realRate = (1 + nominal) / (1 + inflation) - 1;
+            
+            // 购买力减损
+            const purchasingPowerLoss = 1 - (1 / (1 + inflation));
+
+            const resultsHTML = `
+                <div class="results-section show" id="realRateResults">
+                    <div class="result-item">
+                        <div class="result-label">真实收益率 (Real Return)</div>
+                        <div class="result-value" style="color: ${realRate > 0 ? '#1a6dff' : '#e74c3c'}">
+                            ${formatNumber(realRate * 100, 2)}%
+                        </div>
+                        <div class="result-formula">R_real = (1 + R_nom) / (1 + i) - 1</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">粗略估算 (名义 - 通胀)</div>
+                        <div class="result-value">${formatNumber((nominal - inflation) * 100, 2)}%</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">货币购买力贬值</div>
+                        <div class="result-value" style="color: #e67e22;">-${formatNumber(purchasingPowerLoss * 100, 2)}%</div>
+                        <div style="font-size:12px; color:#666;">当前通胀下货币购买力的损失幅度</div>
+                    </div>
+                    
+                    <div class="export-buttons">
+                        <button class="btn-export" onclick="exportToPNG()">导出PNG</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('realRateResults').outerHTML = resultsHTML;
+            addToHistory('真实收益率', `真实回报 ${formatNumber(realRate * 100, 2)}%`);
+        }
+            function calculateTriArb() {
+        const capital = parseFloat(document.getElementById('arbCapital').value);
+        const rateAB = parseFloat(document.getElementById('arbRateAB').value);
+        const rateBC = parseFloat(document.getElementById('arbRateBC').value);
+        const rateCA = parseFloat(document.getElementById('arbRateCA').value);
+
+        if (!capital || !rateAB || !rateBC || !rateCA) {
+            alert("请完整填写本金和三段汇率");
+            return;
+        }
+
+        // 1. 计算循环兑换后的金额
+        // 路径: 本金(A) * (A->B) * (B->C) * (C->A)
+        const finalAmount = capital * rateAB * rateBC * rateCA;
+        
+        // 2. 计算利润
+        const profit = finalAmount - capital;
+        const profitRate = (profit / capital) * 100;
+
+        // 3. 判断是否存在套利空间 (利润 > 0 且 覆盖交易成本)
+        // 这里简单判断是否大于0，实际情况需考虑点差
+        const isArbitrage = profit > 0;
+        
+        // 4. 计算理论无套利汇率 (用于提示)
+        // 理论上 C->A 应该等于 1 / ( (A->B) * (B->C) )
+        const theoreticalRateCA = 1 / (rateAB * rateBC);
+
+        const resultsHTML = `
+            <div class="results-section show" id="arbResults">
+                <div class="result-item" style="border-left: 4px solid ${isArbitrage ? '#27ae60' : '#e74c3c'};">
+                    <div class="result-label">套利结果判定</div>
+                    <div class="result-value" style="color: ${isArbitrage ? '#27ae60' : '#e74c3c'};">
+                        ${isArbitrage ? '发现套利机会！' : '无套利机会 (亏损)'}
+                    </div>
+                    <div class="result-formula">最终持有: ${formatNumber(finalAmount, 2)} (货币A)</div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                    <div class="result-item">
+                        <div class="result-label">净利润</div>
+                        <div class="result-value" style="color: ${profit > 0 ? '#27ae60' : '#e74c3c'}">
+                            ${profit > 0 ? '+' : ''}${formatNumber(profit, 2)}
+                        </div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">收益率</div>
+                        <div class="result-value">${formatNumber(profitRate, 4)}%</div>
+                    </div>
+                </div>
+
+                <div class="result-item" style="background: #fff8e1;">
+                    <div class="result-label">市场分析建议</div>
+                    <div style="font-size: 13px; color: #666; margin-top: 8px;">
+                        当前实际汇率乘积: <strong>${(rateAB * rateBC * rateCA).toFixed(6)}</strong><br>
+                        ${(rateAB * rateBC * rateCA) > 1 ? '乘积 > 1，存在顺时针套利空间' : '乘积 < 1，无顺时针空间(或可尝试逆向)'}
+                        <br><br>
+                        <strong>理论均衡价格:</strong><br>
+                        若消除套利，第三腿(C→A)汇率应调整为: <span style="color:#1a6dff">${formatNumber(theoreticalRateCA, 4)}</span>
+                    </div>
+                </div>
+                
+                <div class="export-buttons">
+                    <button class="btn-export" onclick="exportToPNG()">导出报告</button>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('arbResults').outerHTML = resultsHTML;
+        addToHistory('三角套汇', `收益率 ${formatNumber(profitRate, 4)}%`);
+    }
+        function normInv(p) {
+            if (p <= 0) return -Infinity;
+            if (p >= 1) return Infinity;
+            const a1 = -3.969683028665376e+01, a2 = 2.209460984245205e+02,
+                a3 = -2.759285104469687e+02, a4 = 1.383577518672690e+02,
+                a5 = -3.066479806614716e+01, a6 = 2.506628277459239e+00;
+            const b1 = -5.447609879822406e+01, b2 = 1.615858368580409e+02,
+                b3 = -1.556989798598866e+02, b4 = 6.680131188771972e+01,
+                b5 = -1.328068155288572e+01;
+            const c1 = -7.784894002430293e-03, c2 = -3.223964580411365e-01,
+                c3 = -2.400758277161838e+00, c4 = -2.549732539343734e+00,
+                c5 = 4.374664141464968e+00, c6 = 2.938163982698783e+00;
+            const d1 = 7.784695709041462e-03, d2 = 3.224671290700398e-01,
+                d3 = 2.445134137142996e+00, d4 = 3.754408661907416e+00;
+            const p_low = 0.02425, p_high = 1 - 0.02425;
+            let q, r;
+            if (p < p_low) {
+                q = Math.sqrt(-2 * Math.log(p));
+                return (((((c1 * q + c2) * q + c3) * q + c4) * q + c5) * q + c6) /
+                    ((((d1 * q + d2) * q + d3) * q + d4) * q + 1);
+            } else if (p <= p_high) {
+                q = p - 0.5;
+                r = q * q;
+                return (((((a1 * r + a2) * r + a3) * r + a4) * r + a5) * r + a6) * q /
+                    (((((b1 * r + b2) * r + b3) * r + b4) * r + b5) * r + 1);
+            } else {
+                q = Math.sqrt(-2 * Math.log(1 - p));
+                return -(((((c1 * q + c2) * q + c3) * q + c4) * q + c5) * q + c6) /
+                        ((((d1 * q + d2) * q + d3) * q + d4) * q + 1);
+            }
+        }
+
+        // 2. 二元正态分布累计概率 (Bivariate Normal CDF) - Drezner近似
+        // 计算 P(X < x, Y < y) given correlation rho
+        function bivariateNormalCDF(x, y, rho) {
+            if (Math.abs(rho) >= 1) return 0; // 简化处理边界
+            
+            // 基础概率密度函数
+            const phi = (z) => Math.exp(-z * z / 2) / Math.sqrt(2 * Math.PI);
+            
+            // Gauss-Legendre 权重和节点 (简化版，5点积分)
+            const w = [0.24840615, 0.39233107, 0.21141819, 0.10324416, 0.02969605];
+            const x_nodes = [0.10024215, 0.48281397, 1.06094980, 1.77972940, 2.66976040];
+            
+            const rho1 = Math.sqrt(1 - rho * rho);
+            
+            function prob(k, h, r) {
+                const h1 = -h;
+                const k1 = -k;
+                
+                return 0; 
+            }
+            return null; 
+        }
+
+
+        /* =========================================
+        业务逻辑：Copula 计算与展示
+        ========================================= */
+
+        function calculateCopula() {
+            const pdA = parseFloat(document.getElementById('copulaPdA').value) / 100;
+            const pdB = parseFloat(document.getElementById('copulaPdB').value) / 100;
+            const rho = parseFloat(document.getElementById('copulaRho').value);
+
+            if (!pdA || !pdB || isNaN(rho)) {
+                alert("请输入完整的违约概率和相关系数");
+                return;
+            }
+            const thresholdA = normInv(pdA);
+            const thresholdB = normInv(pdB);
+            
+            const steps = 100;
+            const lowerBound = -6; // 负无穷近似
+            const upperBound = thresholdA;
+            const h = (upperBound - lowerBound) / steps;
+            let sum = 0;
+
+            const standardNormalPDF = (x) => Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI);
+            const standardNormalCDF = (x) => {
+                // Error function approximation
+                const t = 1 / (1 + 0.2316419 * Math.abs(x));
+                const d = 0.3989423 * Math.exp(-x * x / 2);
+                const p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+                return x > 0 ? 1 - p : p;
+            };
+
+            for (let i = 0; i <= steps; i++) {
+                const x = lowerBound + i * h;
+                const conditionalProb = standardNormalCDF((thresholdB - rho * x) / Math.sqrt(1 - rho * rho));
+                const jointDensity = conditionalProb * standardNormalPDF(x);
+                
+                let weight = (i === 0 || i === steps) ? 1 : (i % 2 === 0 ? 2 : 4);
+                sum += weight * jointDensity;
+            }
+
+            const jointProb = (h / 3) * sum; // Simpson积分结果
+
+            // 3. 衍生指标
+            const indepProb = pdA * pdB; // 假设独立的联合概率
+            const correlationImpact = jointProb / indepProb; // 相关性倍数
+
+            const resultsHTML = `
+                <div class="results-section show" id="copulaResults">
+                    <div class="result-item" style="border-left: 4px solid #6c5ce7;">
+                        <div class="result-label">联合违约概率 (Both Default)</div>
+                        <div class="result-value" style="color: #6c5ce7;">${formatNumber(jointProb * 100, 4)}%</div>
+                        <div class="result-formula">P(DefA ∩ DefB) | ρ=${rho}</div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                        <div class="result-item">
+                            <div class="result-label">假设独立时概率</div>
+                            <div class="result-value">${formatNumber(indepProb * 100, 4)}%</div>
+                            <div style="font-size:12px; color:#999;">ρ=0 时的理论值</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">相关性影响倍数</div>
+                            <div class="result-value" style="color: ${correlationImpact > 1 ? '#e74c3c' : '#27ae60'}">
+                                ${formatNumber(correlationImpact, 2)}x
+                            </div>
+                            <div style="font-size:12px; color:#999;">风险放大了多少倍</div>
+                        </div>
+                    </div>
+
+                    <div class="result-item" style="background: #fff8e1;">
+                        <div class="result-label">风险传染分析</div>
+                        <div style="font-size: 13px; color: #666; margin-top: 8px;">
+                            如果资产 A 违约，资产 B 违约的条件概率飙升至：
+                            <strong style="color:#d35400">${formatNumber((jointProb / pdA) * 100, 2)}%</strong>
+                            <br>(原概率为 ${pdB * 100}%)
+                        </div>
+                    </div>
+                    
+                    <div class="export-buttons">
+                        <button class="btn-export" onclick="exportToPNG()">导出PNG</button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('copulaResults').outerHTML = resultsHTML;
+            addToHistory('Copula模型', `联合违约 ${formatNumber(jointProb * 100, 4)}%`);
+        }
         // Windows Resize 事件处理
         window.addEventListener('resize', function() {
             if (window.innerWidth > 768) {
