@@ -102,6 +102,91 @@
             color: #1a6dff;
         }
 
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+            margin-top: 40px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .timeline-header {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 25px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 30px;
+            padding-bottom: 30px;
+            border-left: 2px solid #e0e0e0;
+        }
+
+        .timeline-item:last-child {
+            border-left: 2px solid transparent;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -6px; /* 线宽2px，圆点10px，居中偏移 */
+            top: 0;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #1a6dff;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 2px #1a6dff;
+        }
+
+        .timeline-date {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 5px;
+        }
+
+        .timeline-version {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tag {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: normal;
+            color: #fff;
+        }
+        .tag-new { background: #27ae60; }   /* 绿色：新增 */
+        .tag-fix { background: #e74c3c; }   /* 红色：修复 */
+        .tag-opt { background: #f39c12; }   /* 橙色：优化 */
+
+        .timeline-content {
+            background: rgba(255,255,255,0.6);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .timeline-content ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .timeline-content li {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 6px;
+            line-height: 1.6;
+        }
         .nav-item.active {
             background: rgba(26, 109, 255, 0.15);
             color: #1a6dff;
@@ -427,8 +512,67 @@
             z-index: 1000;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
+        /* 移动端遮罩层 */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                padding: 15px;
+                z-index: 1000; /* 确保在遮罩层之上 */
+            }
+
+            .sidebar.hidden {
+                display: none;
+            }
+
+            .main-content {
+                padding: 15px;
+            }
+
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 1001; /* 在遮罩层和侧边栏之上 */
+                background: rgba(26, 109, 255, 0.9);
+                color: white;
+                border: none;
+                padding: 10px;
+                border-radius: 8px;
+                cursor: pointer;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            }
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <button class="mobile-menu-toggle" onclick="toggleSidebar()">☰ 菜单</button>
@@ -458,6 +602,7 @@
                 <div class="nav-title">时间价值</div>
                 <a href="#" class="nav-item" onclick="showModule('npv')">NPV/IRR</a>
                 <a href="#" class="nav-item" onclick="showModule('annuity')">年金计算</a>
+                <a href="#" class="nav-item" onclick="showModule('early_pay')">提前还贷计算器</a>
             </div>
             
             <div class="nav-section">
@@ -467,6 +612,7 @@
             </div>
             <div class="nav-section">
                 <div class="nav-title">财务与资金</div>
+                <a href="#" class="nav-item" onclick="showModule('tax_calc')">个税计算器</a>
                 <a href="#" class="nav-item" onclick="showModule('gjj_calc')">公积金计算器</a>
                 <a href="#" class="nav-item" onclick="showModule('dupont')">杜邦分析</a>
                 <a href="#" class="nav-item" onclick="showModule('kelly')">凯利公式</a>
@@ -483,7 +629,7 @@
 
             <div class="nav-section">
                 <div class="nav-title">关于</div>
-                <a href="#" class="nav-item" onclick="showModule('team')">开发团队</a>
+                <a href="#" class="nav-item" onclick="showModule('team')">产品介绍</a>
             </div>
                     <div class="nav-section">
                 <div class="nav-title">历史记录</div>
@@ -605,7 +751,7 @@
             </div>
             
             <div style="margin-bottom: 20px; font-size: 14px;">
-                <a href="javascript:void(0)" onclick="syncGJJRates()" style="color: #1a6dff; text-decoration: none;"> 个人与公司比例保持一致</a>
+                <a href="javascript:void(0)" onclick="syncGJJRates()" style="color: #4d0348; text-decoration: none;"> 个人与公司比例保持一致</a>
             </div>
 
             <button class="btn-calculate" onclick="calculateGJJ()">计算存缴明细</button>
@@ -835,6 +981,44 @@
                 <button class="btn-calculate" onclick="calculateOptionGreeks()">计算希腊字母</button>
                 
                 <div class="results-section" id="optionResults"></div>
+            </div>
+            <div class="module-content" id="early_pay">
+                <h2 class="module-header">提前还贷计算器</h2>
+                <p class="module-desc">对比"缩短年限"与"减少月供"的利息节省情况，寻找最优还款方案</p>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>剩余本金 (万元) <span class="tooltip" data-tooltip="当前还没还的本金总额">?</span></label>
+                        <input type="number" id="epPrincipal" placeholder="例如: 80" step="1">
+                    </div>
+                    <div class="input-group">
+                        <label>当前利率 (%) <span class="tooltip" data-tooltip="即当前的LPR+基点后的实际执行利率">?</span></label>
+                        <input type="number" id="epRate" placeholder="例如: 3.85" step="0.01">
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>剩余期限 (年) <span class="tooltip" data-tooltip="还剩多少年还清">?</span></label>
+                        <input type="number" id="epYears" placeholder="例如: 20" step="1">
+                    </div>
+                    <div class="input-group">
+                        <label>预计提前还款金额 (万元)</label>
+                        <input type="number" id="epAmount" placeholder="例如: 20" step="1">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>原贷款类型</label>
+                    <select id="epType">
+                        <option value="equal-payment">等额本息 (每月还款额固定)</option>
+                        <option value="equal-principal">等额本金 (首月还最多，逐月递减)</option>
+                    </select>
+                </div>
+
+                <button class="btn-calculate" onclick="calculateEarlyRepayment()">生成对比方案</button>
+
+                <div class="results-section" id="epResults"></div>
             </div>
             <div class="module-content" id="copula">
                 <h2 class="module-header">Gaussian Copula 违约相关性模型</h2>
@@ -1083,6 +1267,40 @@
             <button class="btn-calculate" onclick="calculateTriArb()">检测套利机会</button>
             <div class="results-section" id="arbResults"></div>
         </div>
+        <div class="module-content" id="tax_calc">
+            <h2 class="module-header">个人所得税计算器</h2>
+            <p class="module-desc">支持工资薪金累计预扣法、年终奖单独/合并计税自动划算</p>
+
+            <div class="input-row">
+                <div class="input-group">
+                    <label>税前月薪 (元) <span class="tooltip" data-tooltip="每月的固定税前收入">?</span></label>
+                    <input type="number" id="taxSalary" placeholder="例如: 20000" step="100">
+                </div>
+                <div class="input-group">
+                    <label>五险一金个人扣除 (元) <span class="tooltip" data-tooltip="每月个人承担的社保+公积金总额">?</span></label>
+                    <input type="number" id="taxInsurance" placeholder="例如: 4000" step="100">
+                </div>
+            </div>
+
+            <div class="input-row">
+                <div class="input-group">
+                    <label>专项附加扣除 (元/月) <span class="tooltip" data-tooltip="子女教育、赡养老人、房贷/房租等总和">?</span></label>
+                    <input type="number" id="taxSpecial" placeholder="例如: 2000" step="100">
+                </div>
+                <div class="input-group">
+                    <label>年终奖金 (元) <span class="tooltip" data-tooltip="年底一次性发放的奖金">?</span></label>
+                    <input type="number" id="taxBonus" placeholder="例如: 50000" step="100">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px; font-size: 13px; color: #666; background: rgba(26, 109, 255, 0.05); padding: 10px; border-radius: 6px;">
+                <strong> 说明：</strong> 此计算器采用“累计预扣预缴法”估算全年税负。默认起征点为 5000元/月。
+            </div>
+
+            <button class="btn-calculate" onclick="calculateTax()">一键筹划</button>
+
+            <div class="results-section" id="taxResults"></div>
+        </div>
             <!-- WACC加权平均资本成本模块 -->
             <div class="module-content" id="wacc">
                 <h2 class="module-header">WACC加权平均资本成本</h2>
@@ -1285,21 +1503,96 @@
         <div class="result-item" style="margin-top: 30px; text-align: center; background: rgba(26, 109, 255, 0.05);">
             <h4 style="color: #1a6dff; margin-bottom: 15px;">联系我们</h4>
             <p style="color: #666; line-height: 1.8;">
-                📧 邮箱: 3493966891@qq.com<br>
-                🌐 官网: https://wktomo.github.io/finance-calculator/<br>
-                💼 商务合作联系: 老耿鱼（见邮箱）<br>
+                 邮箱: 3493966891@qq.com<br>
+                 官网: https://wktomo.github.io/finance-calculator/<br>
+                 合作联系: 老耿鱼（见邮箱）<br>
+                 请不要盗版，谢绝盗版，若有合作请联系团队<br>
                 提示：本计算器只能提供参考作用，具体以实际为准
             </p>
             <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.1); color: #999; font-size: 12px;">
                 © 金融专用计算器 | 阿星出品，必属精品
             </div>
         </div>
+        <div class="timeline">
+    <div class="timeline-header">版本更新日志</div>
+
+        <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-date">2025-12-15</div>
+            <div class="timeline-version">
+                 财务生活版
+                <span class="tag tag-new">新增</span>
+            </div>
+            <div class="timeline-content">
+                <ul>
+                    <li> <strong>新增 [个税计算器]</strong>：支持2024新个税法，独家提供“年终奖单独计税 vs 并入综合所得”自动比对筹划功能，拒绝多交冤枉钱。</li>
+                    <li> <strong>新增 [提前还贷计算器]</strong>：针对降息周期痛点，一键对比“缩短年限”与“减少月供”的利息节省差异，包含机会成本提示。</li>
+                    <li> <strong>修复 [公积金计算]</strong>：修复了计算按钮点击无反应的问题，增加了基数上限预警和个人/公司比例一键同步功能。</li>
+                    <li> <strong>优化 [移动端体验]</strong>：优化侧边栏在手机端的交互逻辑，增加遮罩层点击关闭功能。</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="timeline-item">
+            <div class="timeline-dot" style="background: #ccc; box-shadow: 0 0 0 2px #ccc;"></div>
+            <div class="timeline-date">2025-12-16</div>
+            <div class="timeline-version">
+                 专业量化版
+                <span class="tag tag-new">新增</span>
+            </div>
+            <div class="timeline-content">
+                <ul>
+                    <li> <strong>核心升级</strong>：引入高级金融模型库，包括 Black-Scholes 期权定价、VaR 风险价值计算、Copula 违约相关性模型。</li>
+                    <li> <strong>分析工具</strong>：上线杜邦分析体系、WACC 资本成本计算、Kelly 凯利公式注码管理。</li>
+                    <li> <strong>性能优化</strong>：重构计算核心算法，提升复杂模型的运算速度。</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="timeline-item">
+            <div class="timeline-dot" style="background: #ccc; box-shadow: 0 0 0 2px #ccc;"></div>
+            <div class="timeline-date">2025-12-18</div>
+            <div class="timeline-version">
+                基础功能优化
+                <span class="tag tag-new">新增</span>
+            </div>
+            <div class="timeline-content">
+                <ul>
+                    <li> <strong>项目初始化</strong>：金融专用计算器正式上线。</li>
+                    <li> <strong>基础功能</strong>：复利计算、贷款计算、债券定价等基础模块开发完成。</li>
+                </ul>
+            </div>
+        </div>
+    </div>
     </div>
 </div>
         </div>
     </div>
 
     <script>
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // 禁止 F12 和 Ctrl+Shift+I 等快捷键
+        document.onkeydown = function(e) {
+            if (e.keyCode == 123) { // F12
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { // Ctrl+Shift+I
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) { // Ctrl+Shift+C
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) { // Ctrl+Shift+J
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { // Ctrl+U (查看源码)
+                return false;
+            }
+        };
         // 全局变量
         let calculationHistory = JSON.parse(localStorage.getItem('financeCalculatorHistory')) || [];
 
@@ -1451,55 +1744,62 @@
         }
 
         // 贷款计算
+        // 定义一个全局变量来存储图表实例，方便销毁重建
+        let loanChartInstance = null;
+
         function calculateLoan() {
+            // 1. 获取输入
             const amount = parseFloat(document.getElementById('loanAmount').value);
             const annualRate = parseFloat(document.getElementById('loanRate').value) / 100;
             const years = parseInt(document.getElementById('loanYears').value);
             const type = document.getElementById('loanType').value;
-            
+
+            // 简单校验
+            if (!amount || !annualRate || !years) {
+                alert("请填写完整的贷款金额、利率和年限");
+                return;
+            }
+
             const monthlyRate = annualRate / 12;
             const months = years * 12;
-            
-            let results = '';
-            
+
+            let monthlyPayment = 0;
+            let totalPayment = 0;
+            let totalInterest = 0;
+            let firstPayment = 0;
+            let lastPayment = 0;
+            let resultDetailsHtml = '';
+
+            // 2. 计算逻辑
             if (type === 'equal-payment') {
-                // 等额本息：每月还款额 = [本金×月利率×(1+月利率)^还款月数]÷[(1+月利率)^还款月数-1]
-                const monthlyPayment = amount * monthlyRate * Math.pow(1 + monthlyRate, months) / 
-                                     (Math.pow(1 + monthlyRate, months) - 1);
-                const totalPayment = monthlyPayment * months;
-                const totalInterest = totalPayment - amount;
-                
-                results = `
+                // 等额本息
+                monthlyPayment = amount * monthlyRate * Math.pow(1 + monthlyRate, months) / 
+                                (Math.pow(1 + monthlyRate, months) - 1);
+                totalPayment = monthlyPayment * months;
+                totalInterest = totalPayment - amount;
+
+                resultDetailsHtml = `
                     <div class="result-item">
                         <div class="result-label">月供金额</div>
                         <div class="result-value">¥${formatNumber(monthlyPayment)}</div>
                         <div class="result-formula">等额本息：每月固定还款</div>
                     </div>
-                    <div class="result-item">
-                        <div class="result-label">总还款额</div>
-                        <div class="result-value">¥${formatNumber(totalPayment)}</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">总利息</div>
-                        <div class="result-value">¥${formatNumber(totalInterest)}</div>
-                    </div>
                 `;
             } else if (type === 'equal-principal') {
-                // 等额本金：每月还款额 = (本金/还款月数) + (本金-已还本金累计)×月利率
+                // 等额本金
                 const principalPayment = amount / months;
-                let totalInterest = 0;
                 
-                // 计算总利息
+                // 循环计算总利息
                 for (let i = 0; i < months; i++) {
                     const interestPayment = (amount - principalPayment * i) * monthlyRate;
                     totalInterest += interestPayment;
                 }
-                
-                const totalPayment = amount + totalInterest;
-                const firstPayment = principalPayment + amount * monthlyRate;
-                const lastPayment = principalPayment + principalPayment * monthlyRate;
-                
-                results = `
+
+                totalPayment = amount + totalInterest;
+                firstPayment = principalPayment + amount * monthlyRate;
+                lastPayment = principalPayment + principalPayment * monthlyRate;
+
+                resultDetailsHtml = `
                     <div class="result-item">
                         <div class="result-label">首期还款</div>
                         <div class="result-value">¥${formatNumber(firstPayment)}</div>
@@ -1509,31 +1809,97 @@
                         <div class="result-label">末期还款</div>
                         <div class="result-value">¥${formatNumber(lastPayment)}</div>
                     </div>
-                    <div class="result-item">
-                        <div class="result-label">总利息</div>
-                        <div class="result-value">¥${formatNumber(totalInterest)}</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">总还款额</div>
-                        <div class="result-value">¥${formatNumber(totalPayment)}</div>
-                    </div>
                 `;
             }
-            
+
+            // 3. 生成结果 HTML (新增了 canvas 容器)
             const resultsHTML = `
                 <div class="results-section show" id="loanResults">
-                    ${results}
+                    <div style="max-width: 300px; margin: 0 auto 20px auto; position: relative;">
+                        <canvas id="loanChart"></canvas>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <div class="result-item" style="flex: 1; text-align: center; border-left: 4px solid #36a2eb;">
+                            <div class="result-label">贷款本金</div>
+                            <div style="font-weight: bold; font-size: 16px;">¥${formatNumber(amount)}</div>
+                        </div>
+                        <div class="result-item" style="flex: 1; text-align: center; border-left: 4px solid #ff6384;">
+                            <div class="result-label">总利息</div>
+                            <div style="font-weight: bold; font-size: 16px;">¥${formatNumber(totalInterest)}</div>
+                        </div>
+                    </div>
+
+                    ${resultDetailsHtml}
+
+                    <div class="result-item">
+                        <div class="result-label">还款总额</div>
+                        <div class="result-value">¥${formatNumber(totalPayment)}</div>
+                    </div>
+
                     <div class="export-buttons">
                         <button class="btn-export" onclick="exportToPNG()">导出PNG</button>
-                        <button class="btn-export" onclick="exportToPDF()">导出PDF</button>
                     </div>
                 </div>
             `;
-            
-            document.getElementById('loanResults').outerHTML = resultsHTML;
-            addToHistory('贷款计算', `${type === 'equal-payment' ? '等额本息' : '等额本金'} 月供 ¥${formatNumber(monthlyPayment || 0)}`);
-        }
 
+            // 4. 更新 DOM
+            document.getElementById('loanResults').outerHTML = resultsHTML;
+
+            // 5. 绘制图表 (关键步骤)
+            // 销毁旧图表防止重影
+            if (loanChartInstance) {
+                loanChartInstance.destroy();
+            }
+
+            const ctx = document.getElementById('loanChart').getContext('2d');
+            
+            // 创建新图表
+            loanChartInstance = new Chart(ctx, {
+                type: 'doughnut', // 甜甜圈图
+                data: {
+                    labels: ['贷款本金', '支付利息'],
+                    datasets: [{
+                        data: [amount, totalInterest], // 数据：本金 vs 利息
+                        backgroundColor: [
+                            '#36a2eb', // 蓝色
+                            '#ff6384'  // 红色
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom', // 图例在下方
+                        },
+                        title: {
+                            display: true,
+                            text: '本金与利息比例'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    // 格式化提示框里的金额
+                                    if (context.parsed !== null) {
+                                        label += '¥' + context.parsed.toFixed(2);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 添加历史记录
+            addToHistory('贷款计算', `${type === 'equal-payment' ? '等额本息' : '等额本金'} 总利息 ¥${formatNumber(totalInterest)}`);
+        }
         // 债券定价计算
         function calculateBond() {
             const faceValue = parseFloat(document.getElementById('bondFaceValue').value);
@@ -2060,15 +2426,14 @@
         function exportToPDF() {
             alert('此功能暂时未开发\n敬请关注后续更新优化，阿星出品，必属精品\n本计算仅供参考，具体以实际为主');
         }
-        // Black-Scholes期权定价
-function calculateBlackScholes() {
-    const S = parseFloat(document.getElementById('bsStock').value);
-    const K = parseFloat(document.getElementById('bsStrike').value);
-    const T = parseFloat(document.getElementById('bsTime').value);
-    const sigma = parseFloat(document.getElementById('bsVol').value) / 100;
-    const r = parseFloat(document.getElementById('bsRate').value) / 100;
-    const q = parseFloat(document.getElementById('bsDividend').value) / 100;
-    
+    function calculateBlackScholes() {
+        const S = parseFloat(document.getElementById('bsStock').value);
+        const K = parseFloat(document.getElementById('bsStrike').value);
+        const T = parseFloat(document.getElementById('bsTime').value);
+        const sigma = parseFloat(document.getElementById('bsVol').value) / 100;
+        const r = parseFloat(document.getElementById('bsRate').value) / 100;
+        const q = parseFloat(document.getElementById('bsDividend').value) / 100;
+        
     // 标准正态分布累积函数
     function normCDF(x) {
         const t = 1 / (1 + 0.2316419 * Math.abs(x));
@@ -2783,6 +3148,126 @@ function calculateWACC() {
         document.getElementById('arbResults').outerHTML = resultsHTML;
         addToHistory('三角套汇', `收益率 ${formatNumber(profitRate, 4)}%`);
     }
+function calculateTax() {
+    const monthlySalary = parseFloat(document.getElementById('taxSalary').value) || 0;
+    const insurance = parseFloat(document.getElementById('taxInsurance').value) || 0;
+    const special = parseFloat(document.getElementById('taxSpecial').value) || 0;
+    const yearEndBonus = parseFloat(document.getElementById('taxBonus').value) || 0;
+    const threshold = 5000; // 起征点
+
+    if (monthlySalary === 0 && yearEndBonus === 0) {
+        alert("请输入工资或年终奖金额");
+        return;
+    }
+
+    // --- 工具函数：根据应纳税所得额计算税额 (年表) ---
+    // 2019新个税年度税率表
+    function calculateTaxAmount(taxableIncome) {
+        if (taxableIncome <= 0) return { tax: 0, rate: 0, quick: 0 };
+        
+        let rate = 0;
+        let quick = 0;
+        
+        if (taxableIncome <= 36000) { rate = 0.03; quick = 0; }
+        else if (taxableIncome <= 144000) { rate = 0.10; quick = 2520; }
+        else if (taxableIncome <= 300000) { rate = 0.20; quick = 16920; }
+        else if (taxableIncome <= 420000) { rate = 0.25; quick = 31920; }
+        else if (taxableIncome <= 660000) { rate = 0.30; quick = 52920; }
+        else if (taxableIncome <= 960000) { rate = 0.35; quick = 85920; }
+        else { rate = 0.45; quick = 181920; }
+
+        return {
+            tax: taxableIncome * rate - quick,
+            rate: rate,
+            quick: quick
+        };
+    }
+    const yearlySalaryTaxable = Math.max(0, (monthlySalary - insurance - special - threshold) * 12);
+    const taxOnSalary = calculateTaxAmount(yearlySalaryTaxable).tax;
+    let taxOnBonusSeparate = 0;
+    if (yearEndBonus > 0) { 
+        let bRate = 0, bQuick = 0;
+        const monthIndex = yearEndBonus / 12;
+        if (monthIndex <= 3000) { bRate = 0.03; bQuick = 0; }
+        else if (monthIndex <= 12000) { bRate = 0.10; bQuick = 210; }
+        else if (monthIndex <= 25000) { bRate = 0.20; bQuick = 1410; }
+        else if (monthIndex <= 35000) { bRate = 0.25; bQuick = 2660; }
+        else if (monthIndex <= 55000) { bRate = 0.30; bQuick = 4410; }
+        else if (monthIndex <= 80000) { bRate = 0.35; bQuick = 7160; }
+        else { bRate = 0.45; bQuick = 15160; }
+        taxOnBonusSeparate = yearEndBonus * bRate - bQuick;
+    }
+    const totalTaxSeparate = taxOnSalary + taxOnBonusSeparate;
+    const handTotalSeparate = (monthlySalary * 12 + yearEndBonus) - (insurance * 12) - totalTaxSeparate;
+    const yearlyMergedTaxable = Math.max(0, (monthlySalary * 12 + yearEndBonus) - (insurance * 12) - (special * 12) - (threshold * 12));
+    const totalTaxMerged = calculateTaxAmount(yearlyMergedTaxable).tax;
+    const handTotalMerged = (monthlySalary * 12 + yearEndBonus) - (insurance * 12) - totalTaxMerged;
+
+    const diff = totalTaxSeparate - totalTaxMerged; // 正数说明单独计税交的多（应该选合并）
+    let recommendation = "";
+    let bestHand = 0;
+    
+    if (Math.abs(diff) < 0.01) {
+        recommendation = "两种方式税额相同，任选其一";
+        bestHand = handTotalSeparate;
+    } else if (diff > 0) {
+        recommendation = "建议选择【年终奖并入综合所得】，每年可节税 ¥" + formatNumber(diff);
+        bestHand = handTotalMerged;
+    } else {
+        recommendation = "建议选择【年终奖单独计税】，每年可节税 ¥" + formatNumber(-diff);
+        bestHand = handTotalSeparate;
+    }
+
+    // --- 构建月度明细 (基于工资) ---
+    // 简单展示前几个月和最后一个月的预扣情况
+    // 实际业务中，累计预扣会导致前几个月税少，后面税多
+    
+    const resultsHTML = `
+        <div class="results-section show" id="taxResults">
+            <div class="result-item" style="border-left: 4px solid #1a6dff; background: linear-gradient(135deg, rgba(26,109,255,0.08), rgba(26,109,255,0.02));">
+                <div class="result-label" style="color: #1a6dff; font-weight:bold;"> 筹划结论</div>
+                <div style="font-size: 16px; margin-top: 5px; color: #333;">${recommendation}</div>
+                <div style="margin-top: 10px; font-size: 14px;">预计全年到手收入: <span style="font-size: 20px; color: #27ae60; font-weight: bold;">¥${formatNumber(bestHand)}</span></div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
+                <div class="result-item">
+                    <div class="result-label">方式A: 单独计税</div>
+                    <div class="result-value" style="font-size: 18px;">¥${formatNumber(totalTaxSeparate)}</div>
+                    <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                        工资个税: ¥${formatNumber(taxOnSalary)}<br>
+                        奖金个税: ¥${formatNumber(taxOnBonusSeparate)}
+                    </div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">方式B: 并入综合</div>
+                    <div class="result-value" style="font-size: 18px;">¥${formatNumber(totalTaxMerged)}</div>
+                    <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                        全年一次性计算<br>
+                        适用统一税率表
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-item" style="margin-top: 15px;">
+                <div class="result-label">工资部分月度概览</div>
+                <div style="font-size: 13px; color: #555; margin-top: 8px; line-height: 1.8;">
+                    全年应发工资: ¥${formatNumber(monthlySalary * 12)}<br>
+                    全年五险一金: ¥${formatNumber(insurance * 12)}<br>
+                    全年专项扣除: ¥${formatNumber(special * 12)}<br>
+                    <span style="color: #999;">(注：累计预扣法下，年初到手多，年末到手可能变少)</span>
+                </div>
+            </div>
+            
+            <div class="export-buttons">
+                <button class="btn-export" onclick="exportToPNG()">保存结果</button>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('taxResults').outerHTML = resultsHTML;
+    addToHistory('个税计算', `全年到手 ¥${formatNumber(bestHand)}`);
+}
         function normInv(p) {
             if (p <= 0) return -Infinity;
             if (p >= 1) return Infinity;
@@ -2926,6 +3411,239 @@ function calculateWACC() {
             document.getElementById('copulaResults').outerHTML = resultsHTML;
             addToHistory('Copula模型', `联合违约 ${formatNumber(jointProb * 100, 4)}%`);
         }
+        // 提前还贷计算逻辑
+        function calculateEarlyRepayment() {
+            // 1. 获取输入 (单位转换：万元 -> 元)
+            const principal = (parseFloat(document.getElementById('epPrincipal').value) || 0) * 10000;
+            const rateYear = (parseFloat(document.getElementById('epRate').value) || 0) / 100;
+            const yearsLeft = parseFloat(document.getElementById('epYears').value) || 0;
+            const prepayAmt = (parseFloat(document.getElementById('epAmount').value) || 0) * 10000;
+            const type = document.getElementById('epType').value;
+
+            if (principal <= 0 || yearsLeft <= 0 || prepayAmt <= 0) {
+                alert("请输入有效的剩余本金、期限和提前还款金额");
+                return;
+            }
+            if (prepayAmt >= principal) {
+                alert("提前还款金额大于等于剩余本金，请直接结清贷款即可。");
+                return;
+            }
+
+            const rateMonth = rateYear / 12;
+            const monthsLeft = Math.round(yearsLeft * 12);
+            const newPrincipal = principal - prepayAmt; // 提前还款后的剩余本金
+
+            // --- 计算原计划 (不提前还) ---
+            let oldTotalInterest = 0;
+            let oldMonthlyPayment = 0; // 仅用于等额本息展示
+            
+            if (type === 'equal-payment') {
+                // 等额本息总利息 = [本金*月利率*(1+月利率)^n] / [(1+月利率)^n - 1] * n - 本金
+                const pow = Math.pow(1 + rateMonth, monthsLeft);
+                oldMonthlyPayment = (principal * rateMonth * pow) / (pow - 1);
+                oldTotalInterest = (oldMonthlyPayment * monthsLeft) - principal;
+            } else {
+                // 等额本金总利息 = (n+1)*本金*月利率 / 2
+                oldTotalInterest = (monthsLeft + 1) * principal * rateMonth / 2;
+                // 等额本金首月还款用于展示
+                oldMonthlyPayment = (principal / monthsLeft) + (principal * rateMonth);
+            }
+
+            // --- 方案 A：月供不变，缩短年限 (节省利息最多) ---
+            let planA_Interest = 0;
+            let planA_NewMonths = 0;
+            let planA_Saved = 0;
+
+            if (type === 'equal-payment') {
+                // 保持原月供 oldMonthlyPayment，计算新的期数 n
+                // 公式推导：n = log(PMT / (PMT - P_new * r)) / log(1+r)
+                // 注意：这里用新本金
+                const numerator = oldMonthlyPayment;
+                const denominator = oldMonthlyPayment - (newPrincipal * rateMonth);
+                
+                if (denominator <= 0) {
+                    // 极端情况：利息都覆盖不住，理论上不会发生，除非利率极高
+                    planA_NewMonths = monthsLeft; 
+                } else {
+                    planA_NewMonths = Math.log(numerator / denominator) / Math.log(1 + rateMonth);
+                }
+                
+                planA_NewMonths = Math.ceil(planA_NewMonths);
+                planA_Interest = (oldMonthlyPayment * planA_NewMonths) - newPrincipal;
+            } else {
+                // 等额本金：保持每月本金还款额不变? 
+                // 通常银行策略是：保持“每月还本金金额”增加（让总还款额接近原水平）或者单纯缩短期限
+                // 这里采用标准做法：保持每月还本金金额不变(principal / monthsLeft)，从而缩短期限
+                const monthlyPrincipal = principal / monthsLeft;
+                planA_NewMonths = Math.ceil(newPrincipal / monthlyPrincipal);
+                planA_Interest = (planA_NewMonths + 1) * newPrincipal * rateMonth / 2;
+            }
+            planA_Saved = oldTotalInterest - planA_Interest;
+
+
+            // --- 方案 B：年限不变，减少月供 (减轻压力) ---
+            let planB_Interest = 0;
+            let planB_NewMonthly = 0;
+            let planB_Saved = 0;
+
+            if (type === 'equal-payment') {
+                const pow = Math.pow(1 + rateMonth, monthsLeft);
+                planB_NewMonthly = (newPrincipal * rateMonth * pow) / (pow - 1);
+                planB_Interest = (planB_NewMonthly * monthsLeft) - newPrincipal;
+            } else {
+                // 等额本金
+                planB_Interest = (monthsLeft + 1) * newPrincipal * rateMonth / 2;
+                planB_NewMonthly = (newPrincipal / monthsLeft) + (newPrincipal * rateMonth); // 首月
+            }
+            planB_Saved = oldTotalInterest - planB_Interest;
+
+            // --- 结果展示 ---
+            const resultsHTML = `
+                <div class="results-section show" id="epResults">
+                    <div style="margin-bottom: 20px; font-size: 14px; color: #666;">
+                        原计划剩余总利息: <strong>¥${formatNumber(oldTotalInterest)}</strong>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="result-item" style="border-left: 4px solid #f39c12; background: #fffdf5;">
+                            <div class="result-label" style="color: #d35400; font-weight: bold;">方案一：缩短年限 (推荐)</div>
+                            <div style="margin-top: 10px;">
+                                <div style="font-size: 13px; color: #666;">节省利息</div>
+                                <div class="result-value" style="color: #f39c12;">¥${formatNumber(planA_Saved)}</div>
+                            </div>
+                            <div style="margin-top: 10px; font-size: 13px;">
+                                新月供: <strong>≈ ¥${formatNumber(oldMonthlyPayment)}</strong> (基本不变)<br>
+                                新期限: <strong>${(planA_NewMonths/12).toFixed(1)} 年</strong><br>
+                                <span style="color: #27ae60;">时间缩短: ${(yearsLeft - planA_NewMonths/12).toFixed(1)} 年</span>
+                            </div>
+                        </div>
+
+                        <div class="result-item" style="border-left: 4px solid #1a6dff;">
+                            <div class="result-label" style="color: #1a6dff; font-weight: bold;">方案二：减少月供</div>
+                            <div style="margin-top: 10px;">
+                                <div style="font-size: 13px; color: #666;">节省利息</div>
+                                <div class="result-value" style="color: #1a6dff;">¥${formatNumber(planB_Saved)}</div>
+                            </div>
+                            <div style="margin-top: 10px; font-size: 13px;">
+                                新月供: <strong>¥${formatNumber(planB_NewMonthly)}</strong> <span style="font-size:12px;color:#999;">(首月)</span><br>
+                                新期限: <strong>${yearsLeft} 年</strong> (不变)<br>
+                                <span style="color: #27ae60;">月供减少: ¥${formatNumber(oldMonthlyPayment - planB_NewMonthly)}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="result-item" style="margin-top: 20px;">
+                        <div class="result-label">决策建议</div>
+                        <div style="color: #555; font-size: 14px; line-height: 1.6; margin-top: 5px;">
+                            ${planA_Saved > planB_Saved 
+                                ? `👉 <strong>缩短年限</strong>更划算，能多省利息 <strong>¥${formatNumber(planA_Saved - planB_Saved)}</strong>。` 
+                                : `👉 两种方案利息节省相近。`}
+                            <br>
+                            如果您的目的是"不想给银行打工"，请选方案一。<br>
+                            如果您当前"现金流压力大"，请选方案二。
+                        </div>
+                    </div>
+                    
+                    <div class="export-buttons">
+                        <button class="btn-export" onclick="exportToPNG()">保存对比图</button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('epResults').outerHTML = resultsHTML;
+            addToHistory('提前还贷', `缩短年限省 ¥${formatNumber(planA_Saved)}`);
+        }
+        // --- 公积金计算器模块 ---
+
+        // 1. 辅助功能：同步比例（点击"个人与公司比例保持一致"时触发）
+        function syncGJJRates() {
+            const pRate = document.getElementById('gjjPersonalRate').value;
+            document.getElementById('gjjCompanyRate').value = pRate;
+            // 给个小提示（可选）
+            alert("已将公司缴存比例同步为 " + pRate + "%");
+        }
+
+        // 2. 核心计算逻辑
+        function calculateGJJ() {
+            // 获取输入值
+            const base = parseFloat(document.getElementById('gjjBase').value);
+            const pRate = parseFloat(document.getElementById('gjjPersonalRate').value) / 100;
+            const cRate = parseFloat(document.getElementById('gjjCompanyRate').value) / 100;
+
+            // 校验输入
+            if (!base || base <= 0) {
+                alert("请输入有效的缴纳基数");
+                return;
+            }
+
+            // 计算逻辑
+            // 注意：公积金计算通常精确到元或角分，这里保留两位小数
+            // 个人月缴
+            const monthlyPersonal = base * pRate;
+            // 公司月缴
+            const monthlyCompany = base * cRate;
+            // 月总存缴
+            const monthlyTotal = monthlyPersonal + monthlyCompany;
+
+            // 年度数据
+            const yearlyPersonal = monthlyPersonal * 12;
+            const yearlyCompany = monthlyCompany * 12;
+            const yearlyTotal = monthlyTotal * 12;
+
+            // 生成结果 HTML
+            const resultsHTML = `
+                <div class="results-section show" id="gjjResults">
+                    <div class="result-item" style="border-left: 4px solid #1a6dff; background: linear-gradient(135deg, rgba(26,109,255,0.08), rgba(26,109,255,0.02));">
+                        <div class="result-label" style="color: #1a6dff; font-weight:bold;"> 年度总资产积累</div>
+                        <div class="result-value" style="font-size: 24px; color: #333;">¥${formatNumber(yearlyTotal)}</div>
+                        <div style="margin-top: 5px; font-size: 13px; color: #666;">
+                            相当于每年多攒了一笔隐形存款
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
+                        <div class="result-item">
+                            <div class="result-label">个人月缴 (从工资扣)</div>
+                            <div class="result-value" style="color: #e67e22;">- ¥${formatNumber(monthlyPersonal)}</div>
+                            <div style="font-size: 12px; color: #999; margin-top: 5px;">
+                                比例: ${(pRate*100)}%
+                            </div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">公司月缴 (额外福利)</div>
+                            <div class="result-value" style="color: #27ae60;">+ ¥${formatNumber(monthlyCompany)}</div>
+                            <div style="font-size: 12px; color: #999; margin-top: 5px;">
+                                比例: ${(cRate*100)}%
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="result-item" style="margin-top: 15px;">
+                        <div class="result-label">每月公积金账户入账</div>
+                        <div class="result-value">¥${formatNumber(monthlyTotal)}</div>
+                        
+                        <div style="margin-top: 15px; height: 10px; background: #eee; border-radius: 5px; overflow: hidden; display: flex;">
+                            <div style="width: 50%; background: #e67e22; height: 100%;" title="个人部分"></div>
+                            <div style="width: 50%; background: #27ae60; height: 100%;" title="公司部分"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; color: #666; margin-top: 5px;">
+                            <span>个人贡献</span>
+                            <span>公司贡献</span>
+                        </div>
+                    </div>
+
+                    <div class="export-buttons">
+                        <button class="btn-export" onclick="exportToPNG()">保存结果</button>
+                    </div>
+                </div>
+            `;
+
+            // 渲染结果
+            document.getElementById('gjjResults').outerHTML = resultsHTML;
+            
+            // 写入历史记录
+            addToHistory('公积金计算', `月缴存 ¥${formatNumber(monthlyTotal)}`);
+        }
         // Windows Resize 事件处理
         window.addEventListener('resize', function() {
             if (window.innerWidth > 768) {
@@ -2952,4 +3670,3 @@ function calculateWACC() {
     </script>
 </body>
 </html>
-
